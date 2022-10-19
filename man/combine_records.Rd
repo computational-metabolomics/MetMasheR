@@ -16,9 +16,9 @@ combine_records(
 \arguments{
 \item{group_by}{(character) The column used as the key for grouping records.}
 
-\item{default_fcn}{(function) The default function to use for summarising columns when combining records and a specific function has not been provided in fcns. The default is \code{    paste0(x, collapse = " || ")}.}
+\item{default_fcn}{(function) The default function to use for summarising columns when combining records and a specific function has not been provided in fcns. The default is \code{function(x) {paste0(x, collapse = " || ")}}.}
 
-\item{fcns}{(list) A named list of functions to use for summarising named columns when combining records. Names should correspond to the columns in the annotation table. The default is \code{list}.}
+\item{fcns}{(list) A named list of functions to use for summarising named columns when combining records. Names should correspond to the columns in the annotation table. The default is \code{list()}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

@@ -44,6 +44,7 @@ get_description=function(id) {
                 ' Additional slots and values passed to \\code{struct_class}.')
             next
         }
+        #g=param_obj(M,names(P)[k])
         
         D[[k]]=stringify_params(M,names(P)[k],type='param',val=P[[k]])
     }
@@ -140,14 +141,19 @@ stringify_params = function(M,P,type='param',val=NULL) {
     # if the parameter has a default, then add on the text.
     if ( (!is(val,'name')) & type=='param'){
         d=paste0(d, ' The default is ')
-        if (length(val)>1) {
-            d=paste0(d,'\\code{',capture.output(val),'}.')
+        if (length(val)>1 & !is.call(val)) {
+            d=paste0(d,'\\code{',capture.output(val)[1],'}.')
         } else {
-            if (is.null(val)) {
+               if (is.null(val)) {
                 d=paste0(d,'\\code{NULL}.')
             } else if (is(val,'character')) {
                 d=paste0(d,'\\code{"',val,'"}.')
+            } else if (is.function(val) | is.call(val)) {
+                d=paste0(d,'\\code{',gsub('}','\\}',
+                    paste0(trimws(deparse(val)),collapse='')),'}.')
+                #d=paste0(d,'\\code{some_function()}.')
             } else {
+
                 d=paste0(d,'\\code{',val,'}.')
             }
         }

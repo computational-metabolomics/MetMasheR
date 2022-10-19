@@ -2,8 +2,20 @@ Package: MetMasheR
 Type: Package
 Title: Metabolite Masher
 Version: 0.1.0
-Author: Gavin Rhys Lloyd
-Maintainer: Gavin Rhys Lloyd <g.r.lloyd@bham.ac.uk>
+Authors@R: c(
+    person(
+        c("Gavin","Rhys"),
+          "Lloyd",
+           role=c("aut","cre"),
+           email="g.r.lloyd@bham.ac.uk",
+		   comment = c(ORCID = "0000-0001-7989-6695")
+		),
+    person(
+        c("Ralf","Johannes", "Maria"),
+          "Weber",
+           role=c("aut"),
+           email="r.j.weber@bham.ac.uk")
+        )
 Description: A package to merge, filter sort, organise and otherwise mash 
     together metabolite annotations. Metabolite annotations can be imported from
     multiple sources (software) and combined using workflow steps based on S4
@@ -13,11 +25,14 @@ Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.2.1
 Depends: struct
-Imports: dplyr
+Imports: dplyr,
+    methods,
+    jsonlite,
+    openxlsx,
+    httr
 Collate: 
     'zzz.R'
     'annotation_class.R'
-    'MTox_RT_fcns.R'
     'add_columns_class.R'
     'beamspy_annotation_class.R'
     'cd_annotation_class.R'
@@ -42,3 +57,9 @@ Collate:
     'remove_duplicates.R'
     'rt_match_class.R'
     'st_annotation_class.R'
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr

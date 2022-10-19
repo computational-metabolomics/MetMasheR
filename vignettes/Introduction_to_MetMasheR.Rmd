@@ -1,0 +1,626 @@
+---
+title: "Introduction to Metabolite Mashing in R using the MetMasheR package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to Metabolite Mashing in R using the MetMasheR package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Prerequisits
+
+For this vignette you will need the following R packages:
+
++ `MetMasheR`: the main functionality of this package
++ `dplyr`    : 
++ `openxlsx` : to import some annotations
++ `DT`       : to display some tables
+
+```{r setup,include=FALSE}
+suppressPackageStartupMessages(library(MetMasheR))
+suppressPackageStartupMessages(library(openxlsx))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(DT))
+```
+
+A number of `struct`-based objects have been implemented to facilitate the development and implementation of workflows to process, filter and sort metabolite annotations. Using the `struct`-based templates we are able to quickly and efficiently define and implement workflow steps that are concise, readable and reproducible.
+
+# Metabolite annotation sources
+
+A range of proprietary and open source software, libraries and databases are available to annotate and identify metabolites. Each of the software solutions generates a data table that is different in structure and format (including information). 
+
+A number of annotation_source  objects have been implemented to import and parse various types of data tables.  The objects are extended versions of the basic metabolite annotation source object `annotion_source`:
+
+|Software|`struct` object|
+|--------|-------------|
+|Compound Discoverer|`cd_annotation`|
+|LipidSearch|`ls_annotation`|
+|BeamsPy|`beamspy_annotation`|
+|inclusion list|`inclusion_list`|
+|MS Purity|`mspurity_annotation`|
+|MTox|`mtox_annotation`|
+
+All annotation source objects (listed above) expect a data table where a row corresponds to a single metabolite annotation. Each row is referred to a as a "record".
+
+All `annotation_source` objects have an `id_column` slot that names the column of unique identifiers generated for each metabolite annotation. The `lcms_source` object extend this to include `mz_column` and `rt_column` to define which columns contain the m/z and retention times for each record. 
+
+# Importing metabolite annotations
+Each `annotation_source` has an `import_annotations()` method defined that is specific to its data table format. The raw data table is parsed and converted into a `data.frame`, and then stored within the `annotation_source` object. Depending on the format, different parameters might be required (e.g. Compound Discoverer annotations require the version to be specified). 
+
+```{r import-annotations}
+# prepare a compound discoverer annotation object
+A = cd_annotation(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag = 'CD'
+)
+
+# import the annotations into the object
+A = import_annotations(A)
+
+# show summary
+A
+```
+For the example above 112 annotations with 9 columns of meta data (I.e. information) were imported. 
+
+The `tag` for an annotation is used to distinguish one table of annotation from others that might be from the same source and/or format. For example, Compound Discoverer might be used to annotate metabolites from MS2 spectra that were generated using an inclusion and an exclusion list. The tags for these could be `CD_IL` and `CD_EL`. The tags are used when combining multiple annotation sources together into a single table (see section: Combining multiple sources). 
+
+The imported annotations are available via the `annotations` slot of the `annotation_source` object:
+
+```{r,eval=FALSE}
+A$annotations
+```
+
+```{r,include=TRUE,echo=FALSE}
+A$annotations$mzcloud_score=as.numeric(A$annotations$mzcloud_score)
+DT::datatable(A$annotations,extensions = c('Scroller','Buttons'),options = list(
+    scrollX = TRUE,
+    deferRender = TRUE,
+    scrollY = 200,
+    scroller = TRUE,
+    dom = 'Bfrtip',
+    searching = FALSE,
+    pageLength = 10,
+    fillContainer = FALSE,
+    buttons = c('copy', 'excel')))
+```
+
+An alternative approach is to use the `import_annotation` model object as part of a `model_sequence`. Examples of this are shown in the following sections.
+
+# Annotation methods
+A number of methods have been implemented to extend the functionalities (i.e. filter, modify, additions) of the  `struct` “model” object. Although these steps are not (statistical) models (like e.g. PCA), the model template allows us to create a series of workflow steps and combine them into a  workflow. Apart from the `import_annotation` object, each workflow step (model) defined for `annotation_source` objects are wrappers around commonly applied steps to manipulate `data.frame`s. For example, the `combine_records` model is a wrapper around `summarise` from the `dplyr` package.
+
+The following models have so far been defined for `annotation_source` objects (but dont let that stop you defining new ones!):
+
+```{r method-list,include=TRUE,echo=FALSE}
+x=showMethods(f=model_apply,classes="annotation_source",printTo=FALSE)
+OUT=list()
+for (i in 2:length(x)) {
+    a = strsplit(x[i],'\"')[[1]]
+    if (length(a)>0) {
+        a = a[seq(2, length(a), by = 2)]
+        a = a[-which(a == "annotation_source")] # object name
+        # get object description
+        nobj=new_struct(a)
+        if (length(nobj$description)==0) {
+            next
+        }
+        df=data.frame(model=a,description=nobj$description)
+        OUT=c(OUT,list(df))
+    }
+}
+OUT=do.call(rbind,OUT)
+DT::datatable(OUT)
+```
+
+All of the defined models are model objects and can be used to build workflows by chaining them together using +. This is like using pipes (`%>%`) in `tidyverse`, except the `annotation_source` (i.e. metabolite annotations) are not pushed through the workflow until you call the `model_apply` function: 
+
+```{r model-apply}
+# import the annotations and remove any records (annotations) that have an mz cloud score <= 80:
+M =  import_annotation() + 
+     filter_range(
+        column_name = 'mzcloud_score',
+        upper_limit = Inf,
+        lower_limit = 80,
+        equal_to = TRUE
+    )
+
+# apply the sequence to the annotation_source object
+M = model_apply(M,A)
+
+# summary
+predicted(M)
+
+```
+
+#  Filtering metabolite annotations
+To filter annotations based on a continuous variable (e.g. a quality score, ppm error etc.) or or categorical variable (e.g. category A, B, C).  The `filter_range` and `filter_levels` objects can be used to do this.
+
+## Filter by range
+The `filter_range` function has four input parameters:
+
+```{r filter-range,include=TRUE,echo=FALSE}
+obj = filter_range(
+        column_name = 'mzcloud_score',
+        upper_limit = Inf,
+        lower_limit = 80,
+        equal_to = TRUE
+    )
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+
+The model will remove any metabolite record (or row) where the values are outside of the range (i.e. within the upper and lower limits): 
+
+```{r model-apply2}
+# import the annotations and remove any records (annotations) that have an mz cloud score <= 80 and >= 90:
+M =  import_annotation() + 
+     filter_range(
+        column_name = 'mzcloud_score',
+        upper_limit = 90,
+        lower_limit = 80,
+        equal_to = TRUE
+    )
+
+# apply the sequence to the annotation_source object
+M = model_apply(M,A)
+
+# summary
+predicted(M)
+
+```
+## Filter by levels
+The `filter_levels` function has three input parameters:
+
+```{r filter-levels,include=TRUE,echo=FALSE}
+obj = filter_levels(
+        mode = 'include',
+        column_name = 'kegg_id',
+        levels = c('C00299','C00065','C00079','C00993')
+    )
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+
+The model can filter the records to include, or exclude, only the levels (or categories) specified. In this example we filter the annotations to only include those with a KEGG identifier from a predefined list:
+
+```{r filter-levels2}
+# import the annotations and remove any records with a kegg_id not in our list:
+M =  import_annotation() + 
+     filter_levels(
+        mode = 'include',
+        column_name = 'kegg_id',
+        levels = c('C00299','C00065','C00079','C00993')
+    )
+
+# apply the sequence to the annotation_source object
+# A is the previously imported annotation_source 
+# (see section "Importing metabolite annotations")
+M = model_apply(M,A)
+
+# summary
+predicted(M)
+
+```
+
+A more realistic application  might be to only include LipidSearch annotations with grades A-C.
+
+# Search for identifiers
+There are different types of database or library identifiers used to refer to a metabolite (e.g. KEGG, HMDB, CID, smiles, inchi etc). Two objects are implemented to allow you to augment your existing annotation table with additional metabolite identifiers by searching compound databases for matches. 
+
+## Search by database
+The `id_db_lookup` object allows you to search an existing database for matching identifiers. The only requirement is that the database has already been imported into R as a `data.frame`.
+
+The `id_db_lookup` object input parameters are:
+
+```{r id_db_lookup,include=TRUE,echo=FALSE}
+obj = id_db_lookup(
+        annotation_column = 'kegg_id',
+        database_column = 'KEGG',
+        id_database = data.frame(), 
+        include = 'CID',
+        tag = 'DB'
+    )
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+In this example we import a database from Bioconductors Annotation Hub, and then search for PubChem Compound identifiers (CID) in the database by matching the Kegg identifiers provided by the annotation source to the Kegg identifiers in the database.
+
+```{r id-db-lookup2}
+# get database
+ah=AnnotationHub::AnnotationHub()
+iddb=ah[['AH91792']]
+
+# import the annotations lookup cid by searching for kegg matches
+M =  import_annotation() + 
+     id_db_lookup(
+        annotation_column = 'kegg_id',
+        database_column = 'KEGG',
+        id_database = iddb, 
+        include = 'CID',
+        tag = 'DB'
+    )
+
+## apply the sequence to the annotation_source object
+# A is the previously imported annotation_source 
+# (see section "Importing metabolite annotations")
+M = model_apply(M,A)
+
+# summary
+predicted(M)
+
+```
+
+The number of annotation records (i.e. rows in the table) has increased from 112 to 130. This is because there were multiple matches for the KEGG identifiers of some records. The id of the original record is retained in the id column, so you can see where multiple matches occurred. Here we display (some of) the ids with more than one occurrence. 
+
+```{r}
+# ids with >1 occurrence
+x=table(predicted(M)$annotations$id)
+DT::datatable(head(as.data.frame(x[x>1])),width = 100)
+```
+
+## PubChem API-based lookup
+The `pubchem_lookup` object can be used to search PubChem (via its API) and return the  PubChem Compound ID (CID) for each annotation that matches a certain criteria (e.g. based on matches to values in the user specified column) . The input parameters are: 
+
+```{r pubchem_lookup,include=TRUE,echo=FALSE}
+obj = pubchem_lookup(
+        annotation_column = 'kegg_id',
+        out_column = 'pubchem_cid_kegg'
+    )
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+
+In the example below the `pubchem_lookup` object is used to search for matches based on the `kegg_id` column provided by the `annotation_source`, and then the compound name (if the KEGG ID is not available), and return corresponding CID for each match. 
+
+```{r pubchem_lookup2}
+
+M = import_annotation() + 
+    id_db_lookup(
+        annotation_column = 'kegg_id',
+        database_column = 'KEGG',
+        id_database = iddb, 
+        include = 'CID',
+        tag = 'DB')+ 
+    pubchem_lookup(
+        annotation_column = 'kegg_id',
+        out_column = 'pubchem_cid_kegg') +
+    pubchem_lookup(
+        annotation_column = 'Compound',
+        out_column = 'pubchem_cid_chemical'
+    )
+
+M = model_apply(M,A)
+
+```
+
+Note that the results from the different searches are stored in different columns for comparison and/or merging later.
+
+# Combining columns
+Two pubchem lookups and a database lookup result in three columns containing CIDs:
+
+```{r}
+colnames(predicted(M)$annotations)
+```
++ "DB_CID"               (from the database lookup, where the selected columns have had the tag appended)
++ "pubchem_cid_kegg"     (pubchem lookup by searching for kegg ids)
++ "pubchem_cid_chemical" (pubchem lookup searching for chemical names)
+
+Each search has returned a CID for some records and not others. The `combine_columns` model can be used to merge the three columns together into a new column with, hopefully, fewer NA. It has the following inputs:
+
+```{r combine-columns,include=TRUE,echo=FALSE}
+obj = struct::new_struct('combine_columns')
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+
+A new column, named according to `output_name`, will be created by merging together the three columns specified by the  `column_name` parameter:
+
+```{r combine_columns2}
+# use a new model (M2) and the output from the previous model sequence (predicted(M))
+# so that we dont make unnecessary calls to the pubchem api
+M2 = combine_columns(
+       column_names = c("DB_CID","pubchem_cid_kegg","pubchem_cid_chemical"),
+       output_name = "CID",
+       source_name = 'CID_source',
+       clean = TRUE)
+
+M2 = model_apply(M2,predicted(M))
+
+predicted(M2)
+```
+
+In case of multiple entries, `combine_columns` merges the columns in order of priority left-to-right). e.g. c(NA,2,3) becomes 2 because the second column gets priority over the third, and NA are ignored. The `clean` parameter means we can discard the old columns if they are no longer needed, as is done here. The `source_column` indicates which column the merged value was selected from.
+
+In this case, after combining the columns there is a CID for all records.
+
+```{r,eval=FALSE}
+predicted(M2)$annotations
+```
+
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M2)$annotations))
+```
+
+
+# Counting identifiers and metabolite names
+The `id_counts` object can be used to add a column of counts for an identifier or metabolite. It has the following parameters: 
+
+```{r id_counts,include=TRUE,echo=FALSE}
+obj = new_struct('id_counts')
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+
+The new column is named using the `count_column` parameter and contains the number of occurrences of the id for each record in the `id_column`. e.g. if the ids are c(A,A,B) the then counts are c(2,2,1) as there are two records with the identifier A and one record with the identifier B.
+
+In the following example the new `counts_column` is used to filter the annotation table to include annotations where the id database lookup resulted in multiple CID.
+
+```{r id-counts2}
+M =  import_annotation() + 
+     id_db_lookup(
+        annotation_column = 'kegg_id',
+        database_column = 'KEGG',
+        id_database = iddb, 
+        include = 'CID',
+        tag = 'DB') +
+    id_counts(
+        id_column = 'id',
+        count_column = 'annotation_id_count') +
+    filter_range(
+        column_name = 'annotation_id_count',
+        upper_limit = Inf,
+        lower_limit = 2, # at least 2 counts of the annotation id
+        equal=FALSE
+    )
+
+M = model_apply(M,A)
+```
+There are 36 metabolite annotations with more than 1 record. Here we show only the head of the table:
+
+```{r,eval=FALSE}
+predicted(M)$annotations
+```
+
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M)$annotations))
+```
+
+Note that these counts are only valid at the time when the model is applied, i.e. counts are not automatically updated with every step applied. 
+
+
+# Matching annotations to feature identifiers by m/z and/or retention time 
+Matching metabolite annotations derived from MS2 data to MS1 features (i.e. collected within the same study) is an important step to link  compound names and the outputs of statistics workflows (i.e. statistically significant features). Ultimately it will be this that is used to generate hypotheses for biological mechanism, and/or infer possible modes of action. 
+
+There are three model objects for this purpose:
+
+- The `mz_match` object compares annotation m/z values to feature m/z values within a `ppm_window`
+- The `rt_match` object compares annotation rt values to feature rt values within an `rt_window`. 
+- The `mzrt_match` object uses the `mz_match` and `rt_match` objects to match annotations to the features within the defined windows, and subsequently filters the matches to ensure they are matches for both m/z and rt. 
+
+A new annotation record is created for each feature that matches to a metabolite annotation, with the feature included in a new column. 
+
+In the example below a data.frame of variable meta data (which minimally consists of a retention time, m/z and a feature identifier e.g. (M123R456)) is imported. A model sequence then uses the object `mzrt_match` to assign feature identifiers to the annotations.
+
+```{r}
+## import peak data
+VM = openxlsx::read.xlsx('C:/Users/Gavin/Desktop/HILIC_NEG.xlsx',sheet='variableMetaData',rowNames=TRUE,colNames = TRUE)
+
+# import annotations
+A = cd_annotation(
+    input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+    compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+    cd_version = '3.3',
+    tag = 'CD'
+)
+A = import_annotations(A)
+
+# apply mz and then rt matching
+M = mzrt_match(
+        variable_meta = VM,
+        mz_column = 'mz',
+        rt_column = 'rt',
+        ppm_window= 5,
+        rt_window = 5,
+        id_column = 'rownames'
+    )
+
+M = model_apply(M,A)
+
+# summary
+predicted(M)
+```
+Where there are multiple matches records have been duplicated and the feature id added.
+
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M)$annotations))
+```
+Note that we have specified a ppm window of 5. By default, the matching algorithm applies this window to both the annotation mz (for ppm) and the measured feature m/z, and then searches for overlapping windows. This means the maximum ppm difference between an annotation and a feature is 10. The same approach is used for rt.
+
+The m/z and rt matching objects allow different windows to be specified for the annotations and the features by providing a named vector for the window(s). For example, setting the `variable_meta` window to zero means only the window on the annotations is considered:
+
+```{r}
+# apply mz and then rt matching, with 0 window for the feature id.
+M = mzrt_match(
+        variable_meta = VM,
+        mz_column = 'mz',
+        rt_column = 'rt',
+        ppm_window= c('variable_meta' = 0,'annotations' = 5),
+        rt_window = c('variable_meta' = 0,'annotations' = 5),
+        id_column = 'rownames'
+    )
+
+M = model_apply(M,A)
+
+predicted(M)
+```
+The number of records is much smaller now, and the maximum difference between the annotations and the matching features is 5ppm, with the window centred on the annotations.
+
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M)$annotations))
+```
+
+# Combining annotations within a source
+Sometimes it is necessary to merge records e.g. when a feature matches to multiple annotations. This step should be considered carefully, because some approaches, like using pipes (like || this), can make further processing of the annotations difficult. For example, "glucose" will not match to "alanine || glucose" in a simple exact match text search.
+
+The `combine_records` object is a wrapper around `dplyr::summarise` that allows you to merge annotation records by applying a function, or functions, to select or replace values during the merge. The inputs for `combine_records` are:
+
+```{r combine_records1,include=TRUE,echo=FALSE}
+obj = new_struct('combine_records')
+
+OUT=list()
+for (k in param_ids(obj)) {
+    O = param_obj(obj,k)
+    d=O$description
+    df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
+    OUT=c(OUT,list(df))
+}
+OUT=do.call(rbind,OUT)
+
+DT::datatable(OUT)
+```
+In this example we match the features to annotations by mz and rt, and then collapse duplicate records using pipes.
+
+
+```{r}
+# apply mz and then rt matching, with 0 window for the feature id.
+M = mzrt_match(
+        variable_meta = VM,
+        mz_column = 'mz',
+        rt_column = 'rt',
+        ppm_window= 5,
+        rt_window = 5,
+        id_column = 'rownames') +
+    combine_records(
+        group_by = 'mzrt_match_id',
+        default_fcn = .unique(separator = ' || ')
+    )
+
+M = model_apply(M,A)
+
+predicted(M)
+```
+
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M)$annotations))
+```
+
+The annotation table now has unique values in the `mzrt_match_id` column and duplicate entries for other columns have been combined using " || " as a separator.
+
+The `.unique()` function is a special helper function provided to assist with common merging tasks. Other helper functions are:
+
+- `.mean`          :       calculate the mean value (numeric columns only, excluding NA) 
+- `.median`        :       calculate the median value (numeric columns only, excluding NA)
+- `.mode`          :       use the modal (most common) value (excluding NA)
+- `.collapse`      :       collapses values using a separator
+- `.select_max`    :       selects the annotation corresponding to the maximum value (excluding NA) in the specified column
+- `.select_min`    :       selects the annotation corresponding to the minimum value (excluding NA) in the specified column
+- `.select_match`  :       selects the annotation with an exact match in the specified column to the input value
+- `.unique`        :       collapses unique values using a separator
+- `.prioritise`    :       collapses by preferentially selecting one label other another if available.
+
+In the following example the default function is to collapse using pipes, but the mz and rt columns are averaged.
+
+```{r}
+# apply mz and then rt matching, with 0 window for the feature id.
+M = mzrt_match(
+        variable_meta = VM,
+        mz_column = 'mz',
+        rt_column = 'rt',
+        ppm_window= 5,
+        rt_window = 5,
+        id_column = 'rownames') +
+    combine_records(
+        group_by = 'mzrt_match_id',
+        default_fcn = .unique(separator = ' || '),
+        fcns = list(
+            'mz' = .mean(),
+            'RT' = .mean()
+        )
+    )
+
+M = model_apply(M,A)
+
+predicted(M)
+```
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M)$annotations))
+```
+In the next example the metabolite annotation with the largest mzcloud score is chosen as the annotation for a feature.
+
+```{r}
+# apply mz and then rt matching, with 0 window for the feature id.
+M = mzrt_match(
+        variable_meta = VM,
+        mz_column = 'mz',
+        rt_column = 'rt',
+        ppm_window= 5,
+        rt_window = 5,
+        id_column = 'rownames') +
+    combine_records(
+        group_by = 'mzrt_match_id',
+        default_fcn = .select_max(max_col = 'mzcloud_score')
+    )
+
+M = model_apply(M,A)
+
+predicted(M)
+```
+```{r,include=TRUE,echo=FALSE}
+DT::datatable(head(predicted(M)$annotations))
+```

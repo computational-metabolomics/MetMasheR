@@ -1,3 +1,4 @@
+#' @eval get_description("annotation_source")
 #' @import dplyr
 #' @export annotation_source
 #' @import struct
@@ -26,6 +27,8 @@ annotation_source = function(input_file,tag,add_cols=list(),...) {
         add_cols = 'entity'
     ),
     prototype = list(
+        name = 'An annotation source',
+        description = 'Base class for annotation sources.',
         input_file = entity(
             name = 'Input file',
             description = "The file annotations are imported from.",
@@ -69,6 +72,7 @@ annotation_source = function(input_file,tag,add_cols=list(),...) {
 #' @export 
 setMethod('.DollarNames','annotation_source',.DollarNames.annotation_source)
 
+#' @eval get_description("annotation_source")
 #' @export lcms_source
 lcms_source = function(input_file,...) {
     # new object
@@ -103,16 +107,6 @@ lcms_source = function(input_file,...) {
         .outputs=c('annotations')
     )
 )
-
-# autocompletion, return sample_meta column names
-# @export
-# @method .DollarNames lcms_source
-#.DollarNames.lcms_source <- function(x, pattern = "") {
-#    struct:::.DollarNames.struct_class(x,pattern)
-#}
-
-# @export 
-#setMethod('.DollarNames','lcms_source',.DollarNames.lcms_source)
 
 #' @export
 setMethod(f = 'show',

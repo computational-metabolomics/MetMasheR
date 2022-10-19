@@ -1,4 +1,4 @@
-#' @eval get_description('combine_records')
+#' @eval MetMasheR:::get_description('combine_records')
 #' @export
 #' @include annotation_class.R
 combine_records = function(
@@ -77,7 +77,15 @@ setMethod(f="model_apply",
     definition=function(M,D) {
         
         X=D$annotations
-       
+        
+        # for any NA, generate a unique id so that we dont lose them during grouping
+        for (k in M$group_by) {
+            w=which(is.na(X[[k]]))
+            if (length(w)>0) {
+                X[[k]][w]=paste0('._',k,'_NA_',w)
+            }
+        }
+        
         # if length(group_by) > 1 then combine into single column
         clean = FALSE
         orig_group=M$group_by
@@ -122,6 +130,15 @@ setMethod(f="model_apply",
             Z[[M$group_by]]=NULL
             M$group_by = orig_group
         }
+        
+        # remove generated ids for NA if created
+        for (k in M$group_by) {
+            w=which(grepl(pattern = "^\\.\\_",x = Z[[k]],perl = TRUE)) # match ._ at start of id
+            if (length(w)>0) {
+                Z[[k]][w]=NA
+            }
+        }
+        
         D$annotations=Z
         M$updated=D
         
@@ -172,7 +189,9 @@ setMethod(f="model_apply",
 #'
 #' @export
 .collapse = function(separator){
-    fcn = expr(function(x) {paste0(x,collapse=!!separator)})
+    fcn = expr(function(x) {
+        x[is.na(x)]='NA'
+        paste0(x,collapse=!!separator)})
     return(eval(fcn))
 }
 
@@ -237,6 +256,7 @@ setMethod(f="model_apply",
     fcn = expr(function(x){
         x=x[which(cur_data()[[!!search_col]]==cur_data()[[!!match_col]])]
         if (!is.null(!!separator)) {
+            x[is.na(x)]='NA'
             x=unique(x)
             paste0(x,collapse=!!separator)
         } else {
@@ -256,6 +276,7 @@ setMethod(f="model_apply",
         x=x[which(cur_data()[[!!match_col]]==!!match)]
         
         if (!is.null(!!separator)) {
+            x[is.na(x)]='NA'
             x=unique(x)
             paste0(x,collapse=!!separator)
         } else {
@@ -272,6 +293,7 @@ setMethod(f="model_apply",
 #' @export
 .unique = function(separator){
     fcn=expr(function(x){
+        x[is.na(x)]='NA'
         x=unique(x)
         paste0(x,collapse=!!separator)})
     return(eval(fcn))
@@ -305,6 +327,7 @@ setMethod(f="model_apply",
             
             # if separator is not NULL then collapse
             if (!is.null(!!separator))  {
+                x[is.na(x)]='NA'
                 x=unique(x)
                 return(paste0(x,collapse=!!separator))
             } else {

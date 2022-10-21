@@ -21,6 +21,19 @@ suppressPackageStartupMessages(library(MetMasheR))
 suppressPackageStartupMessages(library(openxlsx))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(DT))
+
+myDT = function(x,extensions=c('Scroller','Buttons'),options=list(
+    scrollX = TRUE,
+    deferRender = TRUE,
+    scrollY = 200,
+    scroller = TRUE,
+    dom = 'Bfrtip',
+    searching = FALSE,
+    pageLength = 10,
+    fillContainer = FALSE,
+    buttons = c('copy', 'excel'))){
+DT::datatable(x,extensions = extensions,options = options)
+}
 ```
 
 A number of `struct`-based objects have been implemented to facilitate the development and implementation of workflows to process, filter and sort metabolite annotations. Using the `struct`-based templates we are able to quickly and efficiently define and implement workflow steps that are concise, readable and reproducible.
@@ -74,16 +87,7 @@ A$annotations
 
 ```{r,include=TRUE,echo=FALSE}
 A$annotations$mzcloud_score=as.numeric(A$annotations$mzcloud_score)
-DT::datatable(A$annotations,extensions = c('Scroller','Buttons'),options = list(
-    scrollX = TRUE,
-    deferRender = TRUE,
-    scrollY = 200,
-    scroller = TRUE,
-    dom = 'Bfrtip',
-    searching = FALSE,
-    pageLength = 10,
-    fillContainer = FALSE,
-    buttons = c('copy', 'excel')))
+myDT(A$annotations)
 ```
 
 An alternative approach is to use the `import_annotation` model object as part of a `model_sequence`. Examples of this are shown in the following sections.

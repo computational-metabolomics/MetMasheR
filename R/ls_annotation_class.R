@@ -96,7 +96,7 @@ setMethod(f = "import_annotations",
             
         } else { # empty data.frame
             out= data.frame(matrix(nrow=0,ncol=(11+length(obj$add_cols))))
-            colnames(df)=c('Rej.','LipidIon','LipidGroup','Class','IonFormula','theor_mass','Grade','mz','library_ppm_diff','rt','LipidName',names(obj$add_cols))
+            colnames(out)=c('Rej.','LipidIon','LipidGroup','Class','IonFormula','theor_mass','Grade','mz','library_ppm_diff','rt','LipidName',names(obj$add_cols))
         }
         
         obj$annotations=out

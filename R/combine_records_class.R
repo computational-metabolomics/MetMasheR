@@ -188,9 +188,9 @@ setMethod(f="model_apply",
 #' returns a function to collapse a vector into a string using the provided separator 
 #'
 #' @export
-.collapse = function(separator){
+.collapse = function(separator,na_string='NA'){
     fcn = expr(function(x) {
-        x[is.na(x)]='NA'
+        x[is.na(x)]=!!na_string
         paste0(x,collapse=!!separator)})
     return(eval(fcn))
 }
@@ -252,11 +252,11 @@ setMethod(f="model_apply",
 #' returns the value(s) of a list based on the index of identical matches in a second list
 #'
 #' @export
-.select_match = function(match_col,search_col,separator) {
+.select_match = function(match_col,search_col,separator,na_string='NA') {
     fcn = expr(function(x){
         x=x[which(cur_data()[[!!search_col]]==cur_data()[[!!match_col]])]
         if (!is.null(!!separator)) {
-            x[is.na(x)]='NA'
+            x[is.na(x)]=!!na_string
             x=unique(x)
             paste0(x,collapse=!!separator)
         } else {
@@ -271,12 +271,12 @@ setMethod(f="model_apply",
 #' returns the value(s) of a list based on the index of identical matches
 #'
 #' @export
-.select_exact = function(match_col,match,separator) {
+.select_exact = function(match_col,match,separator,na_string='NA') {
     fcn = expr(function(x){
         x=x[which(cur_data()[[!!match_col]]==!!match)]
         
         if (!is.null(!!separator)) {
-            x[is.na(x)]='NA'
+            x[is.na(x)]=!!na_string
             x=unique(x)
             paste0(x,collapse=!!separator)
         } else {
@@ -291,9 +291,12 @@ setMethod(f="model_apply",
 #' reduces a list to unique values, then collapses using the separator
 #'
 #' @export
-.unique = function(separator){
+.unique = function(separator,na_string='NA',digits=6){
     fcn=expr(function(x){
-        x[is.na(x)]='NA'
+        x[is.na(x)]=!!na_string
+        if (is(x,'numeric')) {
+            x=round(x,digits)
+        }
         x=unique(x)
         paste0(x,collapse=!!separator)})
     return(eval(fcn))
@@ -305,7 +308,7 @@ setMethod(f="model_apply",
 #' if multiple matches to the priority then collapse using separator
 #' 
 #' @export
-.prioritise = function(match_col,priority,separator,no_match=NA){
+.prioritise = function(match_col,priority,separator,no_match=NA,na_string='NA'){
     fcn=expr(function(x){
         w = NULL
         p = !!priority
@@ -327,7 +330,7 @@ setMethod(f="model_apply",
             
             # if separator is not NULL then collapse
             if (!is.null(!!separator))  {
-                x[is.na(x)]='NA'
+                x[is.na(x)]=!!na_string
                 x=unique(x)
                 return(paste0(x,collapse=!!separator))
             } else {

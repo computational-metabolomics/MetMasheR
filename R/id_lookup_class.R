@@ -70,7 +70,7 @@ id_db_lookup = function(
         updated=entity(
             name='Updated annotations',
             description = 'The input annotation sources is updated with matching columns from the is database.',
-            type='annotation_source'
+            type='annotation_table'
         ),
         tag=entity(
             name = 'Column name tag',
@@ -86,7 +86,7 @@ id_db_lookup = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("id_db_lookup","annotation_source"),
+    signature=c("id_db_lookup","annotation_table"),
     definition=function(M,D) {
         
         X = D$annotations

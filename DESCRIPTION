@@ -31,12 +31,15 @@ Imports: dplyr,
     openxlsx,
     httr
 Collate: 
+    'MetMasheR.R'
+    'generics.R'
     'zzz.R'
     'annotation_class.R'
     'add_columns_class.R'
     'beamspy_annotation_class.R'
-    'cd_annotation_class.R'
     'cd_annotation_mzcor_class.R'
+    'import_annotation_class.R'
+    'cd_source_class.R'
     'combine_columns_class.R'
     'combine_records_class.R'
     'combine_sources.R'
@@ -45,7 +48,6 @@ Collate:
     'filter_range_class.R'
     'id_count_class.R'
     'id_lookup_class.R'
-    'import_annotation_class.R'
     'inclusion_list_class.R'
     'lipidmaps_lookup_class.R'
     'ls_annotation_class.R'

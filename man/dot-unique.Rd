@@ -6,7 +6,7 @@
 for use with combine_records
 reduces a list to unique values, then collapses using the separator}
 \usage{
-.unique(separator)
+.unique(separator, na_string = "NA", digits = 6)
 }
 \description{
 unique values

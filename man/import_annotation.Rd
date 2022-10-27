@@ -2,19 +2,23 @@
 % Please edit documentation in R/import_annotation_class.R
 \name{import_annotation}
 \alias{import_annotation}
-\title{Import annotation}
+\title{Import annotation source}
 \usage{
-import_annotation(...)
+import_annotation(input_file, add_cols, ...)
 }
 \arguments{
+\item{input_file}{(character) The file annotations are imported from.}
+
+\item{add_cols}{(list) A (named) list of additional columns to be added to the table and populated with the provided value.}
+
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }
 \value{
 A  \code{import_annotation} object with the following \code{output} slots:
 \tabular{ll}{
-\code{imported} \tab          (annotation_source) The imported annotations as an annotation_source object. \cr
+\code{imported} \tab          (annotation_table) The imported annotations as an annotation_table object. \cr
 }
 }
 \description{
-Imports an annotation source as part of a model.sequence.
+Imports an annotation source.
 }

@@ -67,8 +67,8 @@ lipidmaps_lookup = function(
         ),
         updated=entity(
             name = 'Updated annotation',
-            description = 'The annotation_source after being updated with the results of the search.',
-            type='annotation_source',
+            description = 'The annotation_table after being updated with the results of the search.',
+            type='annotation_table',
             max_length = Inf
         ),
         context=entity(
@@ -97,7 +97,7 @@ lipidmaps_lookup = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("lipidmaps_lookup","annotation_source"),
+    signature=c("lipidmaps_lookup","annotation_table"),
     definition=function(M,D) {
         
         baseurl='https://www.lipidmaps.org/rest'

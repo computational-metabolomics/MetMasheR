@@ -29,7 +29,7 @@ id_db_lookup(
 \value{
 A  \code{id_db_lookup} object with the following \code{output} slots:
 \tabular{ll}{
-\code{updated} \tab          (annotation_source) The input annotation sources is updated with matching columns from the is database. \cr
+\code{updated} \tab          (annotation_table) The input annotation sources is updated with matching columns from the is database. \cr
 }
 }
 \description{

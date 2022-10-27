@@ -35,8 +35,8 @@ filter_na = function(
         ),
         filtered=entity(
             name = 'Filtered annotations',
-            description = 'annotation_source after filtering.',
-            type='annotation_source',
+            description = 'annotation_table after filtering.',
+            type='annotation_table',
             max_length = Inf
         ),
         flags=entity(
@@ -52,7 +52,7 @@ filter_na = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("filter_na","annotation_source"),
+    signature=c("filter_na","annotation_table"),
     definition=function(M,D) {
         
         X = D$annotations

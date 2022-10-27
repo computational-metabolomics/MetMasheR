@@ -26,8 +26,8 @@ remove_duplicates = function(mode,columns,...) {
         .outputs=c('updated'),
         updated = entity(
             name = 'Updated annotations',
-            description=paste0('The updated annotations as an annotation_source object'),
-            type='annotation_source'
+            description=paste0('The updated annotations as an annotation_table object'),
+            type='annotation_table'
         ),
         columns = entity(
             name = 'Columns',
@@ -48,7 +48,7 @@ remove_duplicates = function(mode,columns,...) {
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("remove_duplicates","annotation_source"),
+    signature=c("remove_duplicates","annotation_table"),
     definition=function(M,D) {
         
         cols=M$columns

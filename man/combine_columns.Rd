@@ -29,7 +29,7 @@ combine_columns(
 \value{
 A  \code{combine_columns} object with the following \code{output} slots:
 \tabular{ll}{
-\code{updated} \tab          (annotation_source) The input annotation source with the newly generated column. \cr
+\code{updated} \tab          (annotation_table) The input annotation source with the newly generated column. \cr
 }
 }
 \description{

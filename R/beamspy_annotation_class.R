@@ -13,7 +13,7 @@ beamspy_annotation = function(input_file, tag = 'BEAMSpy',...) {
 
 .beamspy_annotation<-setClass(
     "beamspy_annotation",
-    contains = c('lcms_source'),
+    contains = c('lcms_table'),
     prototype=
         list(
             rt_column = 'rt',

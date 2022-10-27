@@ -1,30 +1,30 @@
-#' @eval get_description('combine_sources')
+#' @eval get_description('combine_tables')
 #' @export
 #' @include annotation_class.R
-combine_sources = function(
+combine_tables = function(
     source_list,
     matching_columns=NULL,
     keep_cols=NULL,
     tag_ids=FALSE,
-    source_col='annotation_source',
+    source_col='annotation_table',
     ...) {
     
-    # if source list is an annotation_source, make it a list
-    if (is(source_list,'annotation_source')) {
+    # if source list is an annotation_table, make it a list
+    if (is(source_list,'annotation_table')) {
         source_list=list(source_list)
     }
     
     # check fcns are all functions
     if (is(source_list,'list')) {
         if (length(source_list)>0) {
-            check=all(unlist(lapply(source_list,is,class2='annotation_source')))
+            check=all(unlist(lapply(source_list,is,class2='annotation_table')))
             if (!check) {
-                stop("all source_list items must be annotation_source objects.")
+                stop("all source_list items must be annotation_table objects.")
             }
         }
     }
     
-    out=struct::new_struct('combine_sources',
+    out=struct::new_struct('combine_tables',
         source_list=source_list,
         matching_columns = matching_columns,
         keep_cols = keep_cols,
@@ -36,8 +36,8 @@ combine_sources = function(
 
 
 
-.combine_sources<-setClass(
-    "combine_sources",
+.combine_tables<-setClass(
+    "combine_tables",
     contains = c('model'),
     slots=c(
         source_list='entity',
@@ -45,20 +45,20 @@ combine_sources = function(
         keep_cols = 'entity',
         tag_ids = 'entity',
         source_col = 'entity',
-        combined_source='entity'
+        combined_table='entity'
     ),
     
     prototype=list(
         name = 'Combine annotation sources (tables)',
         description = paste0('Annotation tables are joined and matching columns merged.'),
         type = 'univariate',
-        predicted = 'combined_source',
+        predicted = 'combined_table',
         .params=c('source_list','matching_columns','keep_cols','tag_ids','source_col'),
-        .outputs=c('combined_source'),
-        combined_source=entity(
+        .outputs=c('combined_table'),
+        combined_table=entity(
             name='Combined annotation tables',
             description = 'The annotation tabel after combining the input tables.',
-            type='annotation_source'
+            type='annotation_table'
         ),
         source_list=entity(
             name='Source list',
@@ -94,7 +94,7 @@ combine_sources = function(
             description = paste0('The column name that will be created to contain ',
                 ' a tag to indicate which source the annotation originated from.'), 
             type='character',
-            value = 'annotation_source'
+            value = 'annotation_table'
         )
     )
 )
@@ -102,10 +102,10 @@ combine_sources = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("combine_sources",'annotation_source'),
+    signature=c("combine_tables",'annotation_table'),
     definition=function(M,D) {
         A = c(M$source_list,D) # makes a list
-        M$combined_source = combine_annotations(
+        M$combined_table = combine_annotations(
                                 A = A,
                                 matching_columns=M$matching_columns,
                                 keep_cols=M$keep_cols,
@@ -119,10 +119,10 @@ setMethod(f="model_apply",
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("combine_sources",'list'),
+    signature=c("combine_tables",'list'),
     definition=function(M,D) {
         A = c(M$source_list,D)
-        M$combined_source = combine_annotations(
+        M$combined_table = combine_annotations(
                                 A = A,
                                 matching_columns=M$matching_columns,
                                 keep_cols=M$keep_cols,

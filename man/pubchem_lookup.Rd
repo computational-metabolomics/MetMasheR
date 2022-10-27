@@ -29,7 +29,7 @@ pubchem_lookup(
 \value{
 A  \code{pubchem_lookup} object with the following \code{output} slots:
 \tabular{ll}{
-\code{updated} \tab          (annotation_source) The updated annotation source. \cr
+\code{updated} \tab          (annotation_table) The updated annotation source. \cr
 }
 }
 \description{

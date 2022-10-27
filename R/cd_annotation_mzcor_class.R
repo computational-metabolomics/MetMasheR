@@ -11,7 +11,7 @@ cd_annotation_mzcor = function(input_file,tag,...) {
 
 .cd_annotation_mzcor<-setClass(
     "cd_annotation_mzcor",
-    contains = c('lcms_source'),
+    contains = c('lcms_table'),
     
     prototype = list(
         id_column = 'id',

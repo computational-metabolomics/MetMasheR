@@ -1,41 +1,32 @@
-#' @eval get_description("annotation_source")
+#' @eval get_description("annotation_table")
 #' @import dplyr
-#' @export annotation_source
+#' @export annotation_table
 #' @import struct
 #' @importFrom methods is new slot slotNames
 #' @importFrom stats p.adjust
 #' @importFrom utils URLencode read.csv read.table write.table
 #' @include zzz.R
-annotation_source = function(input_file,tag,add_cols=list(),...) {
+#' @include generics.R
+annotation_table = function(annotations,tag,id_column,...) {
     # new object
-    out = new_struct('annotation_source',
-        input_file=input_file,
+    out = new_struct('annotation_table',
+        annotations=annotations,
+        id_column=id_column,
         tag=tag,
-        add_cols=add_cols,
         ...)
     return(out)
 }
 
-.annotation_source<-setClass(
-    "annotation_source",
+.annotation_table<-setClass(
+    "annotation_table",
     contains = c('struct_class'),
     slots = c(
-        input_file = 'entity',
         annotations = 'entity',
         tag = 'entity',
-        id_column = 'character',
-        add_cols = 'entity'
-    ),
+        id_column = 'character'),
     prototype = list(
         name = 'An annotation source',
         description = 'Base class for annotation sources.',
-        input_file = entity(
-            name = 'Input file',
-            description = "The file annotations are imported from.",
-            value=character(0),
-            type='character',
-            max_length = 1
-        ),
         annotations = entity(
             name = 'Annotations',
             description = 'Data frame of imported annotations.',
@@ -43,99 +34,57 @@ annotation_source = function(input_file,tag,add_cols=list(),...) {
         ),
         tag = entity(
             name = 'Annotation source id tag.',
-            description=paste0('A (short) character string that is appended to ',
-                               'columns names when merging this annotation ',
-                               'source with other sources. Used to identify ',
-                               'columns that are from this source in the merged ',
-                               'output.'),
+            description=paste0('A (short) character string that is used to ',
+                'represent this table e.g. in column names, or source columns.'),
             type='character',
             max_length=1
         ),
-        add_cols = entity(
-            name='additonal columns',
-            description='A list of additional columns to be added to the table and populated with the provided value.',
-            type='list',
-            max_length=Inf
-        ),
-        .params=c('input_file','tag','id_column','add_cols'),
+        .params=c('tag','id_column'),
         .outputs=c('annotations')
     )
 )
 
-# autocompletion, return sample_meta column names
-#' @export
-#' @method .DollarNames annotation_source
-.DollarNames.annotation_source <- function(x, pattern = "") {
-    struct:::.DollarNames.struct_class(x,pattern)
-}
-
-#' @export 
-setMethod('.DollarNames','annotation_source',.DollarNames.annotation_source)
-
-#' @eval get_description("annotation_source")
-#' @export lcms_source
-lcms_source = function(input_file,...) {
+#' @eval get_description("annotation_table")
+#' @export lcms_table
+lcms_table = function(annotations,tag,id_column,mz_column,rt_column,...) {
     # new object
-    out = new_struct('lcms_source',input_file=input_file,...)
+    out = new_struct('lcms_table',
+        annotations=annotations,
+        id_column=id_column,
+        tag=tag,
+        mz_column=mz_column,
+        rt_columns=rt_column,
+        ...)
     return(out)
 }
 
-.lcms_source<-setClass(
-    "lcms_source",
-    contains = c('annotation_source'),
+.lcms_table<-setClass(
+    "lcms_table",
+    contains = c('annotation_table'),
     slots = c(
-        input_file = 'entity',
-        annotations = 'entity',
         mz_column = 'character',
-        rt_column = 'character',
-        id_column='character'
+        rt_column = 'character'
     ),
     prototype = list(
-        input_file = entity(
-            name = 'Input file',
-            description = "The file annotations are imported from.",
-            value=character(0),
-            type='character',
-            max_length = 1
-        ),
-        annotations = entity(
-            name = 'Annotations',
-            description = 'Data frame of imported annotations.',
-            type = 'data.frame'
-        ),
-        .params=c('mz_column','rt_column'),
-        .outputs=c('annotations')
+        .params=c('mz_column','rt_column')
     )
 )
 
 #' @export
 setMethod(f = 'show',
-    signature = c('annotation_source'),
+    signature = c('annotation_table'),
     definition = function(object) {
         
         # print struct generic info
         callNextMethod()
         
         cat('annotations:   ',nrow(object$annotations),' rows x ', ncol(object$annotations),' columns\n',sep='')
+        
+        head(object$annotations)
 
     }
 )
 
-##### generics
-#' @export
-setGeneric("import_annotations",function(obj)standardGeneric("import_annotations"))
-setGeneric("combine_annotations",function(A,B,...)standardGeneric("combine_annotations"))
-#####
-
-
-make_source = function(A) {
-    if (is(A,'lcms_source')) {
-        OUT=struct::new_struct('lcms_source')
-    } else {
-        OUT=struct::new_struct('annotation_source')
-    }
-    return(OUT)
-}
 
 rename_matching = function(a,matching_columns) {
     
@@ -210,8 +159,8 @@ do_combine = function(A,B,matching_columns,keep_cols,tag_ids,source_col) {
 
 #' @export
 setMethod(f = "combine_annotations",
-    signature = c("annotation_source","annotation_source"),
-    definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_source') {
+    signature = c("annotation_table","annotation_table"),
+    definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_table') {
         
         # force matching for known columns defined by object
         all_matching = list(
@@ -222,11 +171,11 @@ setMethod(f = "combine_annotations",
         
         g = do_combine(A,B,all_matching,keep_cols,tag_ids,source_col)
         
-        OUT = struct::new_struct('annotation_source')
+        OUT = struct::new_struct('annotation_table')
         OUT$annotations = g
         OUT$tag = 'combined'
         OUT$name = 'Combined annotation source'
-        OUT$description = 'This annotation_source object was generated by combining two other sources.'
+        OUT$description = 'This annotation_table object was generated by combining two other sources.'
         OUT$id_column = 'id'
         
         return(OUT)
@@ -236,29 +185,29 @@ setMethod(f = "combine_annotations",
 #' @export
 setMethod(f = "combine_annotations",
     signature = c("list","missing"),
-    definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_source') {
+    definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_table') {
         
         J = A[[1]]
-        annotation_source = rep(J$tag,nrow(J$annotations))
+        annotation_table = rep(J$tag,nrow(J$annotations))
         for (k in 2:length(A)) {
             B = A[[k]]
             C = combine_annotations(J,B,matching_columns=matching_columns,keep_cols=keep_cols,tag_ids=tag_ids,source_col=source_col)
             
-            annotation_source_new = C$annotations[[source_col]]
-            annotation_source_new[1:length(annotation_source)] = annotation_source
-            annotation_source = annotation_source_new
+            annotation_table_new = C$annotations[[source_col]]
+            annotation_table_new[1:length(annotation_table)] = annotation_table
+            annotation_table = annotation_table_new
             
             J = C
         }
-        J$annotations[[source_col]] = annotation_source
+        J$annotations[[source_col]] = annotation_table
         return(J)
     })
 
 
 #' @export
 setMethod(f = "combine_annotations",
-    signature = c("lcms_source","lcms_source"),
-    definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_source') {
+    signature = c("lcms_table","lcms_table"),
+    definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_table') {
         
         # force matching for known columns defined by object
         all_matching=list(
@@ -272,11 +221,11 @@ setMethod(f = "combine_annotations",
         
         g = do_combine(A,B,all_matching,keep_cols,tag_ids,source_col)
         
-        OUT = struct::new_struct('lcms_source')
+        OUT = struct::new_struct('lcms_table')
         OUT$annotations = g
         OUT$tag = 'combined'
         OUT$name = 'Combined annotation source'
-        OUT$description = 'This annotation_source object was generated by combining two other sources.'
+        OUT$description = 'This annotation_table object was generated by combining two other sources.'
         OUT$id_column = 'id'
         OUT$mz_column = 'mz'
         OUT$rt_column = 'rt'
@@ -286,40 +235,10 @@ setMethod(f = "combine_annotations",
 )
 
 
-#' @export
-setMethod(f = "import_annotations",
-          signature = c("annotation_source"),
-          definition = function(obj) {
-              stop('no import defined for this annotation source.')
-          }
-)
-
-
-
-#' @export
-setMethod(f = "import_annotations",
-          signature = c("list"),
-          definition = function(obj) {
-              
-              check = all(unlist(lapply(obj,is,class2='annotation_source')))
-              
-              if (!check) {
-                  stop('All list items must be annotation sources.')
-              }
-              
-              for (k in seq_len(length(obj))) {
-                  obj[[k]] = import_annotations(obj[[k]])
-              }
-              return(obj)
-          }
-)
-
-
-
 
 #' @export
 setMethod(f = "model_apply",
-    signature = c("model_seq","annotation_source"),
+    signature = c("model_seq","annotation_table"),
     definition = function(M,D) {
         # for each method in the list
         S = D # for first in list the input D is the data object
@@ -336,7 +255,7 @@ setMethod(f = "model_apply",
             
             # set the output of this method as the input for the next method
             S = predicted(M[i])
-            if (is(S,'annotation_source')) {
+            if (is(S,'annotation_table')) {
                 # if its a dataset then update current D
                 D = predicted(M[i])
             }
@@ -346,16 +265,10 @@ setMethod(f = "model_apply",
 )
 
 #' @export
-setMethod(f = "model_apply",
-    signature = c("list","list"),
-    definition = function(M,D) {
-        for (k in 1:length(M)){
-            M[[k]] = model_apply(M[[k]],D[[k]])
-        }
-        return(M)
-    }
-)
-
-
+empty_annotation_table=function(tag='NA') {
+    A = new_struct('annotation_table',
+        tag=tag)
+    return(A)
+}
 
 

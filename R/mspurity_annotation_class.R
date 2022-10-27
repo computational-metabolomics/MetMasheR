@@ -12,7 +12,7 @@ mspurity_annotation = function(input_file,tag = 'msPurity',...) {
 
 .mspurity_annotation<-setClass(
     "mspurity_annotation",
-    contains = c('lcms_source')
+    contains = c('lcms_table')
 )
 
 # autocompletion, return sample_meta column names

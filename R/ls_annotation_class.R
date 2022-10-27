@@ -1,10 +1,9 @@
 #' @include annotation_class.R
 #' @export ls_annotation
-ls_annotation = function(input_file,tag='LS',add_cols=list(),...) {
+ls_annotation = function(input_file,add_cols=list(),...) {
     # new object
     out = new_struct('ls_annotation',
         input_file = input_file,
-        tag = tag,
         add_cols=add_cols,
         ...
     )
@@ -14,12 +13,7 @@ ls_annotation = function(input_file,tag='LS',add_cols=list(),...) {
 
 .ls_annotation<-setClass(
     "ls_annotation",
-    contains = c('lcms_source'),
-    prototype=list(
-        mz_column = 'mz',
-        rt_column = 'rt',
-        id_column = 'id'
-    )
+    contains = c('import_annotation'),
 )
 
 #' @export

@@ -16,7 +16,7 @@ id_counts(id_column, count_column = "id_counts", ...)
 \value{
 A  \code{id_counts} object with the following \code{output} slots:
 \tabular{ll}{
-\code{updated} \tab          (annotation_source) The input annotation source with the newly generated column. \cr
+\code{updated} \tab          (annotation_table) The input annotation source with the newly generated column. \cr
 }
 }
 \description{

@@ -27,8 +27,8 @@ add_columns = function(new_columns,by,...) {
         .outputs=c('updated'),
         updated = entity(
             name = 'Updated annotations',
-            description=paste0('The updated annotations as an annotation_source object'),
-            type='annotation_source'
+            description=paste0('The updated annotations as an annotation_table object'),
+            type='annotation_table'
         ),
         new_columns = entity(
             name = 'New columns',
@@ -46,7 +46,7 @@ add_columns = function(new_columns,by,...) {
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("add_columns","annotation_source"),
+    signature=c("add_columns","annotation_table"),
     definition=function(M,D) {
         
         A = D$annotations

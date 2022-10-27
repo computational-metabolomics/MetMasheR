@@ -18,7 +18,7 @@ filter_levels(column_name, levels, mode = "exclude", ...)
 \value{
 A  \code{filter_levels} object with the following \code{output} slots:
 \tabular{ll}{
-\code{filtered} \tab          (annotation_source) Annotation_source after filtering. \cr
+\code{filtered} \tab          (annotation_table) Annotation_table after filtering. \cr
 \code{flags} \tab          (data.frame) A list of flags indicating which annotations were removed. \cr
 }
 }

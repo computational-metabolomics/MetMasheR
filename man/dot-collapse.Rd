@@ -6,7 +6,7 @@
 for use with combine_records
 returns a function to collapse a vector into a string using the provided separator}
 \usage{
-.collapse(separator)
+.collapse(separator, na_string = "NA")
 }
 \description{
 Collapse

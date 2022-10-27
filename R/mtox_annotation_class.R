@@ -14,7 +14,7 @@ mtox_annotation = function(input_file,tag = 'MTox',add_cols=list(),...) {
 
 .mtox_annotation<-setClass(
     "mtox_annotation",
-    contains = c('lcms_source'),
+    contains = c('lcms_table'),
     prototype=list(
         mz_column = 'mz',
         rt_column = 'rt',
@@ -72,7 +72,7 @@ setMethod(f = "import_annotations",
                 'library_precursor_type',
                 'library_entry_name',
                 'inchikey',
-                'library_source_name',
+                'library_table_name',
                 'library_compound_name'
             )
             df=data.frame(matrix(NA,nrow=0,ncol=length(cols)))

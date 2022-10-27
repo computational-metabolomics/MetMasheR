@@ -73,7 +73,7 @@ combine_columns = function(
         updated=entity(
             name='Updated annotations',
             description = 'The input annotation source with the newly generated column.',
-            type='annotation_source'
+            type='annotation_table'
         ),
         source_tags = entity(
             name = 'Source tags',
@@ -88,7 +88,7 @@ combine_columns = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("combine_columns","annotation_source"),
+    signature=c("combine_columns","annotation_table"),
     definition=function(M,D) {
         
         X = D$annotations

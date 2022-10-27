@@ -6,7 +6,7 @@
 for use with combine_records
 returns the value(s) of a list based on the index of identical matches}
 \usage{
-.select_exact(match_col, match, separator)
+.select_exact(match_col, match, separator, na_string = "NA")
 }
 \description{
 select match

@@ -16,7 +16,7 @@ add_columns(new_columns, by, ...)
 \value{
 A  \code{add_columns} object with the following \code{output} slots:
 \tabular{ll}{
-\code{updated} \tab          (annotation_source) The updated annotations as an annotation_source object. \cr
+\code{updated} \tab          (annotation_table) The updated annotations as an annotation_table object. \cr
 }
 }
 \description{

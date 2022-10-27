@@ -32,7 +32,7 @@ mzrt_match(
 \value{
 A  \code{mzrt_match} object with the following \code{output} slots:
 \tabular{ll}{
-\code{updated} \tab          (annotation_source) The input annotation source with the newly generated column. \cr
+\code{updated} \tab          (annotation_table) The input annotation source with the newly generated column. \cr
 }
 }
 \description{

@@ -35,7 +35,7 @@ id_counts = function(
         updated=entity(
             name='Updated annotations',
             description = 'The input annotation source with the newly generated column.',
-            type='annotation_source'
+            type='annotation_table'
         ),
         
         count_column=entity(
@@ -54,7 +54,7 @@ id_counts = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("id_counts","annotation_source"),
+    signature=c("id_counts","annotation_table"),
     definition=function(M,D) {
         
         X = D$annotations

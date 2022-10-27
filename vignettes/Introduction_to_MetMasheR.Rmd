@@ -42,7 +42,7 @@ A number of `struct`-based objects have been implemented to facilitate the devel
 
 A range of proprietary and open source software, libraries and databases are available to annotate and identify metabolites. Each of the software solutions generates a data table that is different in structure and format (including information). 
 
-A number of annotation_source  objects have been implemented to import and parse various types of data tables.  The objects are extended versions of the basic metabolite annotation source object `annotion_source`:
+A number of annotation_table  objects have been implemented to import and parse various types of data tables.  The objects are extended versions of the basic metabolite annotation source object `annotion_table`:
 
 |Software|`struct` object|
 |--------|-------------|
@@ -55,10 +55,10 @@ A number of annotation_source  objects have been implemented to import and parse
 
 All annotation source objects (listed above) expect a data table where a row corresponds to a single metabolite annotation. Each row is referred to a as a "record".
 
-All `annotation_source` objects have an `id_column` slot that names the column of unique identifiers generated for each metabolite annotation. The `lcms_source` object extend this to include `mz_column` and `rt_column` to define which columns contain the m/z and retention times for each record. 
+All `annotation_table` objects have an `id_column` slot that names the column of unique identifiers generated for each metabolite annotation. The `lcms_table` object extend this to include `mz_column` and `rt_column` to define which columns contain the m/z and retention times for each record. 
 
 # Importing metabolite annotations
-Each `annotation_source` has an `import_annotations()` method defined that is specific to its data table format. The raw data table is parsed and converted into a `data.frame`, and then stored within the `annotation_source` object. Depending on the format, different parameters might be required (e.g. Compound Discoverer annotations require the version to be specified). 
+Each `annotation_table` has an `import_annotations()` method defined that is specific to its data table format. The raw data table is parsed and converted into a `data.frame`, and then stored within the `annotation_table` object. Depending on the format, different parameters might be required (e.g. Compound Discoverer annotations require the version to be specified). 
 
 ```{r import-annotations}
 # prepare a compound discoverer annotation object
@@ -79,7 +79,7 @@ For the example above 112 annotations with 9 columns of meta data (I.e. informat
 
 The `tag` for an annotation is used to distinguish one table of annotation from others that might be from the same source and/or format. For example, Compound Discoverer might be used to annotate metabolites from MS2 spectra that were generated using an inclusion and an exclusion list. The tags for these could be `CD_IL` and `CD_EL`. The tags are used when combining multiple annotation sources together into a single table (see section: Combining multiple sources). 
 
-The imported annotations are available via the `annotations` slot of the `annotation_source` object:
+The imported annotations are available via the `annotations` slot of the `annotation_table` object:
 
 ```{r,eval=FALSE}
 A$annotations
@@ -93,18 +93,18 @@ myDT(A$annotations)
 An alternative approach is to use the `import_annotation` model object as part of a `model_sequence`. Examples of this are shown in the following sections.
 
 # Annotation methods
-A number of methods have been implemented to extend the functionalities (i.e. filter, modify, additions) of the  `struct` “model” object. Although these steps are not (statistical) models (like e.g. PCA), the model template allows us to create a series of workflow steps and combine them into a  workflow. Apart from the `import_annotation` object, each workflow step (model) defined for `annotation_source` objects are wrappers around commonly applied steps to manipulate `data.frame`s. For example, the `combine_records` model is a wrapper around `summarise` from the `dplyr` package.
+A number of methods have been implemented to extend the functionalities (i.e. filter, modify, additions) of the  `struct` “model” object. Although these steps are not (statistical) models (like e.g. PCA), the model template allows us to create a series of workflow steps and combine them into a  workflow. Apart from the `import_annotation` object, each workflow step (model) defined for `annotation_table` objects are wrappers around commonly applied steps to manipulate `data.frame`s. For example, the `combine_records` model is a wrapper around `summarise` from the `dplyr` package.
 
-The following models have so far been defined for `annotation_source` objects (but dont let that stop you defining new ones!):
+The following models have so far been defined for `annotation_table` objects (but dont let that stop you defining new ones!):
 
 ```{r method-list,include=TRUE,echo=FALSE}
-x=showMethods(f=model_apply,classes="annotation_source",printTo=FALSE)
+x=showMethods(f=model_apply,classes="annotation_table",printTo=FALSE)
 OUT=list()
 for (i in 2:length(x)) {
     a = strsplit(x[i],'\"')[[1]]
     if (length(a)>0) {
         a = a[seq(2, length(a), by = 2)]
-        a = a[-which(a == "annotation_source")] # object name
+        a = a[-which(a == "annotation_table")] # object name
         # get object description
         nobj=new_struct(a)
         if (length(nobj$description)==0) {
@@ -118,7 +118,7 @@ OUT=do.call(rbind,OUT)
 DT::datatable(OUT)
 ```
 
-All of the defined models are model objects and can be used to build workflows by chaining them together using +. This is like using pipes (`%>%`) in `tidyverse`, except the `annotation_source` (i.e. metabolite annotations) are not pushed through the workflow until you call the `model_apply` function: 
+All of the defined models are model objects and can be used to build workflows by chaining them together using +. This is like using pipes (`%>%`) in `tidyverse`, except the `annotation_table` (i.e. metabolite annotations) are not pushed through the workflow until you call the `model_apply` function: 
 
 ```{r model-apply}
 # import the annotations and remove any records (annotations) that have an mz cloud score <= 80:
@@ -130,7 +130,7 @@ M =  import_annotation() +
         equal_to = TRUE
     )
 
-# apply the sequence to the annotation_source object
+# apply the sequence to the annotation_table object
 M = model_apply(M,A)
 
 # summary
@@ -176,7 +176,7 @@ M =  import_annotation() +
         equal_to = TRUE
     )
 
-# apply the sequence to the annotation_source object
+# apply the sequence to the annotation_table object
 M = model_apply(M,A)
 
 # summary
@@ -216,8 +216,8 @@ M =  import_annotation() +
         levels = c('C00299','C00065','C00079','C00993')
     )
 
-# apply the sequence to the annotation_source object
-# A is the previously imported annotation_source 
+# apply the sequence to the annotation_table object
+# A is the previously imported annotation_table 
 # (see section "Importing metabolite annotations")
 M = model_apply(M,A)
 
@@ -273,8 +273,8 @@ M =  import_annotation() +
         tag = 'DB'
     )
 
-## apply the sequence to the annotation_source object
-# A is the previously imported annotation_source 
+## apply the sequence to the annotation_table object
+# A is the previously imported annotation_table 
 # (see section "Importing metabolite annotations")
 M = model_apply(M,A)
 
@@ -312,7 +312,7 @@ OUT=do.call(rbind,OUT)
 DT::datatable(OUT)
 ```
 
-In the example below the `pubchem_lookup` object is used to search for matches based on the `kegg_id` column provided by the `annotation_source`, and then the compound name (if the KEGG ID is not available), and return corresponding CID for each match. 
+In the example below the `pubchem_lookup` object is used to search for matches based on the `kegg_id` column provided by the `annotation_table`, and then the compound name (if the KEGG ID is not available), and return corresponding CID for each match. 
 
 ```{r pubchem_lookup2}
 
@@ -372,7 +372,7 @@ A new column, named according to `output_name`, will be created by merging toget
 M2 = combine_columns(
        column_names = c("DB_CID","pubchem_cid_kegg","pubchem_cid_chemical"),
        output_name = "CID",
-       source_name = 'CID_source',
+       source_name = 'CID_table',
        clean = TRUE)
 
 M2 = model_apply(M2,predicted(M))

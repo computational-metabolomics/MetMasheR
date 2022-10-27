@@ -1,11 +1,15 @@
-#' @include annotation_class.R
-#' @export cd_annotation
-cd_annotation = function(input_file, compounds_file,tag = 'CD',cd_version = 3.1,add_cols=list(),...) {
+#' @include import_annotation_class.R
+#' @export
+cd_source = function(
+        input_file, 
+        compounds_file,tag = 'CD',
+        cd_version = 3.1,
+        add_cols=list(),
+    ...) {
     # new object
-    out = new_struct('cd_annotation',
+    out = new_struct('cd_source',
                      input_file = input_file,
                      compounds_file = compounds_file,
-                     tag = tag,
                      cd_version=cd_version,
                      add_cols=add_cols,
                      ...
@@ -13,9 +17,9 @@ cd_annotation = function(input_file, compounds_file,tag = 'CD',cd_version = 3.1,
     return(out)
 }
 
-.cd_annotation<-setClass(
-    "cd_annotation",
-    contains = c('lcms_source'),
+.cd_source<-setClass(
+    "cd_source",
+    contains = c('import_annotation'),
     slots = c(
         compounds_file = 'entity',
         cd_version = 'enum'
@@ -36,22 +40,20 @@ cd_annotation = function(input_file, compounds_file,tag = 'CD',cd_version = 3.1,
             max_length = 1,
             allowed=c(3.1,3.3)
         ),
-        .params=c('compounds_file','cd_version'),
-        mz_column = 'mz',
-        rt_column = 'RT',
-        id_column = 'id'
+        .params=c('compounds_file','cd_version')
     )
 )
 
+
 #' @export
-setMethod(f = "import_annotations",
-          signature = c("cd_annotation"),
-          definition = function(obj) {
+setMethod(f = "model_apply",
+          signature = c("cd_source",'lcms_table'),
+          definition = function(M,D) {
+
+              CD_data <- readWorkbook(xlsxFile=M$input_file, sheet=2)
+              CD_isomers <- readWorkbook(xlsxFile=M$compounds_file, sheet=2)
               
-              CD_data <- readWorkbook(xlsxFile=obj$input_file, sheet=2)
-              CD_isomers <- readWorkbook(xlsxFile=obj$compounds_file, sheet=2)
-              
-              if (obj$cd_version==3.3) {
+              if (M$cd_version==3.3) {
                   # replace all 'Tags' with NA
                   CD_data[CD_data=='Tags']=NA
                   CD_isomers[CD_isomers=='Tags']=NA
@@ -212,21 +214,25 @@ setMethod(f = "import_annotations",
               cd_compounds_table$id=as.character(1:nrow(cd_compounds_table))
              
               # add extra columns if requested
-              if (length(obj$add_cols)>0){
-                  for (g in 1:length(obj$add_cols)) {
-                      cd_compounds_table[[names(obj$add_cols)[g]]]=obj$add_cols[[g]]
+              if (length(M$add_cols)>0){
+                  for (g in 1:length(M$add_cols)) {
+                      cd_compounds_table[[names(M$add_cols)[g]]]=M$add_cols[[g]]
                   }
               }
+
+              # update objects              
+              D$annotations=as.data.frame(cd_compounds_table)
+              D$annotations$mzcloud_score=as.numeric(D$annotations$mzcloud_score)
+              D$annotations$mz=as.numeric(D$annotations$mz)
+              D$annotations$RT=as.numeric(D$annotations$RT)
+              D$annotations$Charge=as.numeric(D$annotations$Charge)
+              D$mz_column = 'mz'
+              D$rt_column = 'RT'
+              D$id_column = 'id'
               
-              obj$annotations=as.data.frame(cd_compounds_table)
-              
-              obj$annotations$mzcloud_score=as.numeric(obj$annotations$mzcloud_score)
-              obj$annotations$mz=as.numeric(obj$annotations$mz)
-              obj$annotations$RT=as.numeric(obj$annotations$RT)
-              obj$annotations$Charge=as.numeric(obj$annotations$Charge)
-             
+              M$imported=D
         
-              return(obj)
+              return(M)
               
           })
 

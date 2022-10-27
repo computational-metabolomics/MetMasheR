@@ -7,7 +7,7 @@
 reduces a list by prioritizing values according to the input
 if multiple matches to the priority then collapse using separator}
 \usage{
-.prioritise(match_col, priority, separator, no_match = NA)
+.prioritise(match_col, priority, separator, no_match = NA, na_string = "NA")
 }
 \description{
 prioritise

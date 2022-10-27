@@ -70,7 +70,7 @@ pubchem_lookup = function(
         updated=entity(
             name='Updated annotations',
             description = 'The updated annotation source.',
-            type='annotation_source'
+            type='annotation_table'
         ),
         search_by=enum(
             name='Search by term',
@@ -96,7 +96,7 @@ pubchem_lookup = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("pubchem_lookup","annotation_source"),
+    signature=c("pubchem_lookup","annotation_table"),
     definition=function(M,D) {
         X = D$annotations
         

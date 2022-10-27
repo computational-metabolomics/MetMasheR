@@ -13,7 +13,7 @@ inclusion_list = function(input_file, tag = 'IL',...) {
 
 .inclusion_list<-setClass(
     "inclusion_list",
-    contains = c('lcms_source')
+    contains = c('lcms_table')
 )
 
 

@@ -6,7 +6,7 @@
 for use with combine_records
 returns the value(s) of a list based on the index of identical matches in a second list}
 \usage{
-.select_match(match_col, search_col, separator)
+.select_match(match_col, search_col, separator, na_string = "NA")
 }
 \description{
 select match

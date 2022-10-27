@@ -52,7 +52,7 @@ mz_match = function(
         updated=entity(
             name='Updated annotations',
             description = 'The input annotation source with the newly generated column.',
-            type='annotation_source'
+            type='annotation_table'
         ),
         variable_meta=entity(
             name='Variable meta data',
@@ -85,7 +85,7 @@ mz_match = function(
 
 #' @export
 setMethod(f="model_apply",
-    signature=c("mz_match","annotation_source"),
+    signature=c("mz_match","annotation_table"),
     definition=function(M,D) {
         
         VM = M$variable_meta

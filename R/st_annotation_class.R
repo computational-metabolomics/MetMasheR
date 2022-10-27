@@ -25,7 +25,7 @@ setMethod(f = "import_annotations",
                                                stringsAsFactors = F, header=TRUE)
               
               semi_targeted_data <- semi_targeted_data[, c("library_compound_name",
-                                                           "library_accession", "library_precursor_type", "library_source_name",
+                                                           "library_accession", "library_precursor_type", "library_table_name",
                                                            "library_rt", "rtdiff","library_precursor_mz",
                                                            "grp_name","grpid", "dpc", "rdpc", "cdpc","mcount", "allcount", "mpercent")]
               obj$annotations=semi_targeted_data

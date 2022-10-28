@@ -31,8 +31,8 @@ myDT = function(x,extensions=c('Scroller','Buttons'),options=list(
     searching = FALSE,
     pageLength = 10,
     fillContainer = FALSE,
-    buttons = c('copy', 'excel'))){
-DT::datatable(x,extensions = extensions,options = options)
+    buttons = c('copy', 'excel')),...){
+DT::datatable(x,extensions = extensions,options = options,...)
 }
 ```
 
@@ -42,40 +42,44 @@ A number of `struct`-based objects have been implemented to facilitate the devel
 
 A range of proprietary and open source software, libraries and databases are available to annotate and identify metabolites. Each of the software solutions generates a data table that is different in structure and format (including information). 
 
-A number of annotation_table  objects have been implemented to import and parse various types of data tables.  The objects are extended versions of the basic metabolite annotation source object `annotion_table`:
+A number of objects have been implemented to import and parse various types of data tables.  The objects are extended versions of the `import_annotation` object:
 
 |Software|`struct` object|
 |--------|-------------|
-|Compound Discoverer|`cd_annotation`|
-|LipidSearch|`ls_annotation`|
-|BeamsPy|`beamspy_annotation`|
-|inclusion list|`inclusion_list`|
-|MS Purity|`mspurity_annotation`|
-|MTox|`mtox_annotation`|
+|Compound Discoverer|`cd_source`|
+|LipidSearch|`ls_source`|
+|BeamsPy|`beamspy_source`|
+|inclusion list|`inclusion_list_source`|
+|MS Purity|`mspurity_source`|
+|MTox|`mtox_source`|
 
-All annotation source objects (listed above) expect a data table where a row corresponds to a single metabolite annotation. Each row is referred to a as a "record".
+All annotation sources (listed above) import a data.frame where a row corresponds to a single metabolite annotation. In this document each row is referred to a as a "record".
 
 All `annotation_table` objects have an `id_column` slot that names the column of unique identifiers generated for each metabolite annotation. The `lcms_table` object extend this to include `mz_column` and `rt_column` to define which columns contain the m/z and retention times for each record. 
 
 # Importing metabolite annotations
+
+All imported annotations are stored as `annotation_table` objects. They are based on `struct` templates and have common slots such as `name`, `description` etc. `annotation_table` objects have an `annotations` slot that holds the data.frame of annotations.
+
 Each `annotation_table` has an `import_annotations()` method defined that is specific to its data table format. The raw data table is parsed and converted into a `data.frame`, and then stored within the `annotation_table` object. Depending on the format, different parameters might be required (e.g. Compound Discoverer annotations require the version to be specified). 
 
 ```{r import-annotations}
-# prepare a compound discoverer annotation object
-A = cd_annotation(
+
+# prepare a compound discoverer import
+M = cd_source(
         input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
         compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
         cd_version = '3.3',
-        tag = 'CD'
+        tag='CD'
 )
 
 # import the annotations into the object
-A = import_annotations(A)
+A = import_source(M)
 
 # show summary
 A
 ```
-For the example above 112 annotations with 9 columns of meta data (I.e. information) were imported. 
+For the example above `r nrow(A$annotations)` annotations with `r ncol(A$annotations)` columns of meta data (i.e. information) were imported. 
 
 The `tag` for an annotation is used to distinguish one table of annotation from others that might be from the same source and/or format. For example, Compound Discoverer might be used to annotate metabolites from MS2 spectra that were generated using an inclusion and an exclusion list. The tags for these could be `CD_IL` and `CD_EL`. The tags are used when combining multiple annotation sources together into a single table (see section: Combining multiple sources). 
 
@@ -90,7 +94,7 @@ A$annotations$mzcloud_score=as.numeric(A$annotations$mzcloud_score)
 myDT(A$annotations)
 ```
 
-An alternative approach is to use the `import_annotation` model object as part of a `model_sequence`. Examples of this are shown in the following sections.
+An alternative approach is to use the source object as part of a `model_sequence`. Examples of this are shown in the following sections.
 
 # Annotation methods
 A number of methods have been implemented to extend the functionalities (i.e. filter, modify, additions) of the  `struct` “model” object. Although these steps are not (statistical) models (like e.g. PCA), the model template allows us to create a series of workflow steps and combine them into a  workflow. Apart from the `import_annotation` object, each workflow step (model) defined for `annotation_table` objects are wrappers around commonly applied steps to manipulate `data.frame`s. For example, the `combine_records` model is a wrapper around `summarise` from the `dplyr` package.
@@ -115,14 +119,18 @@ for (i in 2:length(x)) {
     }
 }
 OUT=do.call(rbind,OUT)
-DT::datatable(OUT)
+myDT(OUT)
 ```
 
 All of the defined models are model objects and can be used to build workflows by chaining them together using +. This is like using pipes (`%>%`) in `tidyverse`, except the `annotation_table` (i.e. metabolite annotations) are not pushed through the workflow until you call the `model_apply` function: 
 
 ```{r model-apply}
 # import the annotations and remove any records (annotations) that have an mz cloud score <= 80:
-M =  import_annotation() + 
+M =  cd_source(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag='CD') +
      filter_range(
         column_name = 'mzcloud_score',
         upper_limit = Inf,
@@ -161,14 +169,18 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 
 The model will remove any metabolite record (or row) where the values are outside of the range (i.e. within the upper and lower limits): 
 
 ```{r model-apply2}
 # import the annotations and remove any records (annotations) that have an mz cloud score <= 80 and >= 90:
-M =  import_annotation() + 
+M =  cd_source(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag='CD') +
      filter_range(
         column_name = 'mzcloud_score',
         upper_limit = 90,
@@ -202,14 +214,18 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 
 The model can filter the records to include, or exclude, only the levels (or categories) specified. In this example we filter the annotations to only include those with a KEGG identifier from a predefined list:
 
 ```{r filter-levels2}
 # import the annotations and remove any records with a kegg_id not in our list:
-M =  import_annotation() + 
+M =  cd_source(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag='CD') + 
      filter_levels(
         mode = 'include',
         column_name = 'kegg_id',
@@ -256,15 +272,21 @@ OUT=do.call(rbind,OUT)
 
 DT::datatable(OUT)
 ```
-In this example we import a database from Bioconductors Annotation Hub, and then search for PubChem Compound identifiers (CID) in the database by matching the Kegg identifiers provided by the annotation source to the Kegg identifiers in the database.
+In this example we import a database from Bioconductor's Annotation Hub, and then search for PubChem Compound identifiers (CID) in the database by matching the Kegg identifiers provided by the annotation source to the Kegg identifiers in the database.
 
 ```{r id-db-lookup2}
-# get database
-ah=AnnotationHub::AnnotationHub()
-iddb=ah[['AH91792']]
+if(!exists('iddb')) {
+    # get database, if we havent already
+    ah=AnnotationHub::AnnotationHub()
+    iddb=ah[['AH91792']]
+}
 
 # import the annotations lookup cid by searching for kegg matches
-M =  import_annotation() + 
+M =  cd_source(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag='CD') + 
      id_db_lookup(
         annotation_column = 'kegg_id',
         database_column = 'KEGG',
@@ -283,12 +305,12 @@ predicted(M)
 
 ```
 
-The number of annotation records (i.e. rows in the table) has increased from 112 to 130. This is because there were multiple matches for the KEGG identifiers of some records. The id of the original record is retained in the id column, so you can see where multiple matches occurred. Here we display (some of) the ids with more than one occurrence. 
+The number of annotation records (i.e. rows in the table) has increased from 112 to 130. This is because there were multiple matches for the KEGG identifiers of some records. The id of the original record is retained in the id column, so you can see where multiple matches occurred. The table below shows the row indexes with more than one occurrence. 
 
 ```{r}
 # ids with >1 occurrence
 x=table(predicted(M)$annotations$id)
-DT::datatable(head(as.data.frame(x[x>1])),width = 100)
+myDT(as.data.frame(x[x>1]),width=200)
 ```
 
 ## PubChem API-based lookup
@@ -303,7 +325,7 @@ obj = pubchem_lookup(
 OUT=list()
 for (k in param_ids(obj)) {
     O = param_obj(obj,k)
-    d=O$description
+    d = O$description
     df = data.frame('parameter'=k,'description'=paste(names(d),d,collapse='. ',sep=': '))
     OUT=c(OUT,list(df))
 }
@@ -316,7 +338,11 @@ In the example below the `pubchem_lookup` object is used to search for matches b
 
 ```{r pubchem_lookup2}
 
-M = import_annotation() + 
+M = cd_source(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag='CD') + 
     id_db_lookup(
         annotation_column = 'kegg_id',
         database_column = 'KEGG',
@@ -324,30 +350,31 @@ M = import_annotation() +
         include = 'CID',
         tag = 'DB')+ 
     pubchem_lookup(
-        annotation_column = 'kegg_id',
-        out_column = 'pubchem_cid_kegg') +
-    pubchem_lookup(
-        annotation_column = 'Compound',
-        out_column = 'pubchem_cid_chemical'
-    )
+        annotation_column = c('kegg_id','Compound'),
+        out_column = c('pubchem_cid','inchikey'),
+        search_by = 'name',
+        return_value = 'property',
+        property = c('CID','InChIKey'))
 
 M = model_apply(M,A)
 
+A=predicted(M)
+
+myDT(A$annotations)
 ```
 
 Note that the results from the different searches are stored in different columns for comparison and/or merging later.
 
 # Combining columns
-Two pubchem lookups and a database lookup result in three columns containing CIDs:
+The PubChem lookup and the `metaboliteIDmapping` database lookup result in two columns containing CIDs:
++ "DB_CID"               (from the database lookup, where the selected columns have had the tag appended)
++ "pubchem_cid"          (pubchem lookup by searching for kegg ids)
 
 ```{r}
 colnames(predicted(M)$annotations)
 ```
-+ "DB_CID"               (from the database lookup, where the selected columns have had the tag appended)
-+ "pubchem_cid_kegg"     (pubchem lookup by searching for kegg ids)
-+ "pubchem_cid_chemical" (pubchem lookup searching for chemical names)
 
-Each search has returned a CID for some records and not others. The `combine_columns` model can be used to merge the three columns together into a new column with, hopefully, fewer NA. It has the following inputs:
+Each search has returned a CID for some records and not others, and for some of the `metaboliteIDmapping` database results there are multiple CID for the same annotation. The `combine_columns` model can be used to merge the two columns together into a new column with, hopefully, fewer NA. It can also be used to prioritise results from one database over another. E.g. here we'd like to prioritise the PubChem lookup over the `metaboliteIDmapping` database. The combine columns object has the following inputs:
 
 ```{r combine-columns,include=TRUE,echo=FALSE}
 obj = struct::new_struct('combine_columns')
@@ -361,7 +388,7 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 
 A new column, named according to `output_name`, will be created by merging together the three columns specified by the  `column_name` parameter:
@@ -370,7 +397,7 @@ A new column, named according to `output_name`, will be created by merging toget
 # use a new model (M2) and the output from the previous model sequence (predicted(M))
 # so that we dont make unnecessary calls to the pubchem api
 M2 = combine_columns(
-       column_names = c("DB_CID","pubchem_cid_kegg","pubchem_cid_chemical"),
+       column_names = c("pubchem_cid","DB_CID"),
        output_name = "CID",
        source_name = 'CID_table',
        clean = TRUE)
@@ -389,7 +416,7 @@ predicted(M2)$annotations
 ```
 
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M2)$annotations))
+myDT(predicted(M2)$annotations)
 ```
 
 

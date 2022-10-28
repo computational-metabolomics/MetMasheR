@@ -21,9 +21,9 @@ cd_annotation_mzcor = function(input_file,tag,...) {
 )
 
 #' @export
-setMethod(f = "import_annotations",
+setMethod(f = "import_source",
     signature = c("cd_annotation_mzcor"),
-    definition = function(obj) {
+    definition = function(M,...) {
         
         CD_DATA <- openxlsx::read.xlsx(xlsxFile = obj$input_file, sheet=1,rowNames=FALSE,colNames=TRUE)
 

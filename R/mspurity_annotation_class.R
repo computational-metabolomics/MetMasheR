@@ -26,9 +26,9 @@ mspurity_annotation = function(input_file,tag = 'msPurity',...) {
 setMethod('.DollarNames','mspurity_annotation',.DollarNames.mspurity_annotation)
 
 #' @export
-setMethod(f = "import_annotations",
+setMethod(f = "import_source",
           signature = c("mspurity_annotation"),
-          definition = function(obj) {
+          definition = function(M,...) {
               in_data <- read.table(obj$input_file, sep="\t", 
                                     stringsAsFactors = F, header=TRUE)
               obj$annotations=in_data

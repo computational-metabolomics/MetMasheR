@@ -18,9 +18,9 @@ inclusion_list = function(input_file, tag = 'IL',...) {
 
 
 #' @export
-setMethod(f = "import_annotations",
+setMethod(f = "import_source",
     signature = c("inclusion_list"),
-    definition = function(obj) {
+    definition = function(M,...) {
         file_in <- read.csv(file=obj$input_file, sep=",",check.names = FALSE)
         obj$annotations=file_in
         return(obj)

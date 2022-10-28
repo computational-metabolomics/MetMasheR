@@ -24,9 +24,9 @@ mtox_annotation = function(input_file,tag = 'MTox',add_cols=list(),...) {
 
 
 #' @export
-setMethod(f = "import_annotations",
+setMethod(f = "import_source",
     signature = c("mtox_annotation"),
-    definition = function(obj) {
+    definition = function(M,...) {
         
         # check for zero content
         check=readLines(obj$input_file)

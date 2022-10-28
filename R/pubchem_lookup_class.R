@@ -125,7 +125,7 @@ setMethod(f="model_apply",
                 if (length(w)>0) {
                     cid = pubchem_cache[[w]]
                 } else {
-                    cid = structReportsPCB:::.query_pubchem(x = x[[j]],search_by=M$search_by,return_value=M$return_value,property=M$property)  
+                    cid = .query_pubchem(x = x[[j]],search_by=M$search_by,return_value=M$return_value,property=M$property)  
                     }
                 
                 if (is.null(cid)){ # no hits :(

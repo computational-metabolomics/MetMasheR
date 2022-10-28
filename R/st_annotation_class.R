@@ -18,9 +18,9 @@ st_annotation = function(input_file,tag='ST',...) {
 
 
 #' @export
-setMethod(f = "import_annotations",
+setMethod(f = "import_source",
           signature = c("st_annotation"),
-          definition = function(obj) {
+          definition = function(M,...) {
               semi_targeted_data <- read.table(obj$input_file, sep="\t", 
                                                stringsAsFactors = F, header=TRUE)
               

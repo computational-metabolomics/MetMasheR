@@ -24,9 +24,9 @@ beamspy_annotation = function(input_file, tag = 'BEAMSpy',...) {
 
 
 #' @export
-setMethod(f = "import_annotations",
+setMethod(f = "import_source",
           signature = c("beamspy_annotation"),
-          definition = function(obj) {
+          definition = function(M,...) {
               beams_output <- read.csv(file=obj$input_file, sep="\t")
               rownames(beams_output)=beams_output$name
               obj$annotations=beams_output

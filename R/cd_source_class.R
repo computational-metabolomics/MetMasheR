@@ -1,28 +1,31 @@
 #' @include import_annotation_class.R
 #' @export
 cd_source = function(
-        input_file, 
-        compounds_file,tag = 'CD',
-        cd_version = 3.1,
-        add_cols=list(),
+    input_file, 
+    compounds_file,
+    tag = 'CD',
+    cd_version = 3.1,
+    add_cols=list(),
     ...) {
     # new object
     out = new_struct('cd_source',
-                     input_file = input_file,
-                     compounds_file = compounds_file,
-                     cd_version=cd_version,
-                     add_cols=add_cols,
-                     ...
+        input_file = input_file,
+        compounds_file = compounds_file,
+        cd_version=cd_version,
+        add_cols=add_cols,
+        tag=tag,
+        ...
     )
     return(out)
 }
 
 .cd_source<-setClass(
     "cd_source",
-    contains = c('import_annotation'),
+    contains = c('annotation_source'),
     slots = c(
         compounds_file = 'entity',
-        cd_version = 'enum'
+        cd_version = 'enum',
+        imported='entity'
     ),
     prototype = list(
         compounds_file = entity(
@@ -39,6 +42,11 @@ cd_source = function(
             type='numeric',
             max_length = 1,
             allowed=c(3.1,3.3)
+        ),
+        imported = entity(
+            name = 'Imported annotations',
+            description=paste0('The imported annotations as an annotation_table object'),
+            type='lcms_table'
         ),
         .params=c('compounds_file','cd_version')
     )
@@ -229,6 +237,7 @@ setMethod(f = "model_apply",
               D$mz_column = 'mz'
               D$rt_column = 'RT'
               D$id_column = 'id'
+              D$tag = M$tag
               
               M$imported=D
         

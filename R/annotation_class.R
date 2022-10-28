@@ -7,7 +7,7 @@
 #' @importFrom utils URLencode read.csv read.table write.table
 #' @include zzz.R
 #' @include generics.R
-annotation_table = function(annotations,tag,id_column,...) {
+annotation_table = function(annotations=data.frame(),tag='',id_column='',...) {
     # new object
     out = new_struct('annotation_table',
         annotations=annotations,
@@ -46,14 +46,14 @@ annotation_table = function(annotations,tag,id_column,...) {
 
 #' @eval get_description("annotation_table")
 #' @export lcms_table
-lcms_table = function(annotations,tag,id_column,mz_column,rt_column,...) {
+lcms_table = function(annotations=data.frame(),tag='',id_column='',mz_column='',rt_column='',...) {
     # new object
     out = new_struct('lcms_table',
         annotations=annotations,
         id_column=id_column,
         tag=tag,
         mz_column=mz_column,
-        rt_columns=rt_column,
+        rt_column=rt_column,
         ...)
     return(out)
 }
@@ -66,7 +66,7 @@ lcms_table = function(annotations,tag,id_column,mz_column,rt_column,...) {
         rt_column = 'character'
     ),
     prototype = list(
-        .params=c('mz_column','rt_column')
+        .outputs=c('mz_column','rt_column')
     )
 )
 
@@ -263,12 +263,4 @@ setMethod(f = "model_apply",
         return(M)
     }
 )
-
-#' @export
-empty_annotation_table=function(tag='NA') {
-    A = new_struct('annotation_table',
-        tag=tag)
-    return(A)
-}
-
 

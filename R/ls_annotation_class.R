@@ -1,6 +1,6 @@
-#' @include annotation_class.R
-#' @export ls_annotation
-ls_annotation = function(input_file,add_cols=list(),...) {
+#' @include import_annotation_class.R
+#' @export ls_source
+ls_source = function(input_file,add_cols=list(),...) {
     # new object
     out = new_struct('ls_annotation',
         input_file = input_file,
@@ -11,18 +11,18 @@ ls_annotation = function(input_file,add_cols=list(),...) {
 }
 
 
-.ls_annotation<-setClass(
-    "ls_annotation",
-    contains = c('import_annotation'),
+.ls_source<-setClass(
+    "ls_source",
+    contains = c('annotation_source'),
 )
 
 #' @export
-setMethod(f = "import_annotations",
-    signature = c("ls_annotation"),
-    definition = function(obj) {
+setMethod(f = "model_apply",
+    signature = c("ls_source","lcms_table"),
+    definition = function(M,D) {
         
         # Locate from which row of LipidSearch output the data table starts
-        con <- file(obj$input_file, "r")
+        con <- file(M$input_file, "r")
         lines <- readLines(con)
         line_num <- grep ("LipidIon", lines)
         close (con)
@@ -30,7 +30,7 @@ setMethod(f = "import_annotations",
             stop ("Can't detect LipidSearch output in provided input_file!")
         }
         
-        lipid_search_data <- read.csv(obj$input_file, sep="\t",
+        lipid_search_data <- read.csv(M$input_file, sep="\t",
             stringsAsFactors = F, skip=line_num-1)
         
         if (nrow(lipid_search_data)>0) {
@@ -79,23 +79,23 @@ setMethod(f = "import_annotations",
             out$LipidName=unlist(lapply(N,'[',1))
             
             # add ids
-            out[[obj$id_column]] = as.character(1:nrow(out))
+            out[[M$id_column]] = as.character(1:nrow(out))
             
             # add extra columns if requested
-            if (length(obj$add_cols)>0){
-                for (g in 1:length(obj$add_cols)) {
-                    out[[names(obj$add_cols)[g]]]=obj$add_cols[[g]]
+            if (length(M$add_cols)>0){
+                for (g in 1:length(M$add_cols)) {
+                    out[[names(M$add_cols)[g]]]=M$add_cols[[g]]
                 }
             }
             
         } else { # empty data.frame
-            out= data.frame(matrix(nrow=0,ncol=(11+length(obj$add_cols))))
-            colnames(out)=c('Rej.','LipidIon','LipidGroup','Class','IonFormula','theor_mass','Grade','mz','library_ppm_diff','rt','LipidName',names(obj$add_cols))
+            out= data.frame(matrix(nrow=0,ncol=(11+length(M$add_cols))))
+            colnames(out)=c('Rej.','LipidIon','LipidGroup','Class','IonFormula','theor_mass','Grade','mz','library_ppm_diff','rt','LipidName',names(M$add_cols))
         }
         
-        obj$annotations=out
+        M$annotations=out
         
-        return(obj)
+        return(M)
     }
 )
 

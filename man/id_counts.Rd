@@ -4,12 +4,14 @@
 \alias{id_counts}
 \title{id counts}
 \usage{
-id_counts(id_column, count_column = "id_counts", ...)
+id_counts(id_column, count_column = "id_counts", count_na = TRUE, ...)
 }
 \arguments{
 \item{id_column}{(character) Column name of the variable ids in variable_meta.}
 
 \item{count_column}{(character) The name of the new column to store the counts in. The default is \code{"id_counts"}.}
+
+\item{count_na}{(logical) Count NA. Allowed values are limited to the following: \itemize{\item{\code{"TRUE"}: Report number of NA.}\item{\code{"FALSE"}: Do not report number of NA.}} The default is \code{TRUE}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

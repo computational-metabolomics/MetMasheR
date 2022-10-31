@@ -8,6 +8,13 @@
 #' @include zzz.R
 #' @include generics.R
 annotation_table = function(annotations=data.frame(),tag='',id_column='',...) {
+    
+    check=id_column %in% colnames(annotations)
+    
+    if (!check){
+        stop('"id_column" must be a column name in the "annotations" data.frame')
+    }
+    
     # new object
     out = new_struct('annotation_table',
         annotations=annotations,
@@ -47,6 +54,33 @@ annotation_table = function(annotations=data.frame(),tag='',id_column='',...) {
 #' @eval get_description("annotation_table")
 #' @export lcms_table
 lcms_table = function(annotations=data.frame(),tag='',id_column='',mz_column='',rt_column='',...) {
+    
+    msg=character(0)
+    
+    check=id_column %in% colnames(annotations)
+    
+    if (!check[1]){
+        msg=c(msg,('"id_column" must be a column name in the "annotations" data.frame\n'))
+    }
+    
+    check=mz_column %in% colnames(annotations)
+    
+    if (!check){
+        msg=c(msg,'"mz_column" must be a column name in the "annotations" data.frame\n')
+    }
+    
+    
+    check=rt_column %in% colnames(annotations)
+    
+    if (!check){
+        msg=c(msg,'"rt_column" must be a column name in the "annotations" data.frame\n')
+    }
+    
+    if (!length(msg)==0){
+        stop(msg)
+    }
+    
+    
     # new object
     out = new_struct('lcms_table',
         annotations=annotations,

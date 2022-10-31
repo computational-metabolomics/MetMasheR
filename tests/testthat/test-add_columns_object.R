@@ -28,10 +28,11 @@ test_that("add-columnns object includes the requested columns", {
     df = data.frame(a=11:20,b=1:10)
     
     # annotations only match the by column in some places
-    an = data.frame(a=c(seq(from=11,to=20,by=2)))
+    an = data.frame(a=c(seq(from=11,to=20,by=2)),id=1:5)
     
     # annotation table
-    AN = annotation_table(annotations=an)
+    AN = annotation_table(annotations=an,
+            id_column = 'id')
     
     # model
     M = add_columns(new_columns=df,by='a')

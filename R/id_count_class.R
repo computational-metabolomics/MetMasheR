@@ -2,14 +2,16 @@
 #' @export
 #' @include annotation_class.R
 id_counts = function(
-    id_column,
+        id_column,
     count_column = 'id_counts',
+    count_na = TRUE,
     ...) {
     
-   
+    
     out=struct::new_struct('id_counts',
-        id_column=id_column,
-        count_column=count_column,
+        id_column = id_column,
+        count_column = count_column,
+        count_na = count_na,
         ...)
     return(out)
 }
@@ -20,9 +22,10 @@ id_counts = function(
     "id_counts",
     contains = c('model'),
     slots=c(
-        id_column='entity',
+        id_column = 'entity',
         count_column = 'entity',
-        updated = 'entity'
+        updated = 'entity',
+        count_na = 'entity'
     ),
     
     prototype=list(
@@ -30,7 +33,7 @@ id_counts = function(
         description = paste0('Adds the number of times an identical identifier is present to each record.'),
         type = 'univariate',
         predicted = 'updated',
-        .params=c('id_column','count_column'),
+        .params=c('id_column','count_column','count_na'),
         .outputs=c('updated'),
         updated=entity(
             name='Updated annotations',
@@ -43,10 +46,17 @@ id_counts = function(
             description = 'The name of the new column to store the counts in.',
             type='character'
         ),
-       id_column=entity(
+        id_column=entity(
             name='id column name',
             description = 'column name of the variable ids in variable_meta.',
             type='character'
+        ),
+        count_na = entity(
+            name='Count NA',
+            description = c("TRUE"='Report number of NA',"FALSE" = 'Do not report number of NA'),
+            value=TRUE,
+            max_length=1,
+            type='logical'
         )
     )
 )
@@ -73,16 +83,17 @@ setMethod(f="model_apply",
             # get the identifier
             id = X[[M$id_column]][k]
             
-            # skip if NA or no id
-            if (length(id)==0) {
-                next
-            }
             if (is.na(id)) {
-                next
+                if (M$count_na) {
+                    # number of NA
+                    n = sum(is.na(X[[M$id_column]]))
+                } else {
+                    n=NA
+                }
+            } else {
+                # number of occurrences
+                n = sum(X[[M$id_column]]==id,na.rm=TRUE)
             }
-            
-            # number of occurrences
-            n = sum(X[[M$id_column]]==id,na.rm=TRUE)
             # update annotations
             X[[M$count_column]][k]=n
         }
@@ -92,3 +103,4 @@ setMethod(f="model_apply",
         return(M)
     }
 )
+    

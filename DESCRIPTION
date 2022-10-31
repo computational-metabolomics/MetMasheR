@@ -52,7 +52,6 @@ Collate:
     'mz_match_class.R'
     'mzrt_match_class.R'
     'pubchem_lookup_class.R'
-    'remove_duplicates.R'
     'rt_match_class.R'
 Suggests: 
     covr,

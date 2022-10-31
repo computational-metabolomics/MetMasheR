@@ -36,8 +36,6 @@ Collate:
     'zzz.R'
     'annotation_class.R'
     'add_columns_class.R'
-    'beamspy_annotation_class.R'
-    'cd_annotation_mzcor_class.R'
     'import_annotation_class.R'
     'cd_source_class.R'
     'combine_columns_class.R'
@@ -48,18 +46,16 @@ Collate:
     'filter_range_class.R'
     'id_count_class.R'
     'id_lookup_class.R'
-    'inclusion_list_class.R'
     'lipidmaps_lookup_class.R'
-    'ls_annotation_class.R'
-    'mspurity_annotation_class.R'
-    'mtox_annotation_class.R'
+    'ls_source_class.R'
+    'mtox_source_class.R'
     'mz_match_class.R'
     'mzrt_match_class.R'
     'pubchem_lookup_class.R'
     'remove_duplicates.R'
     'rt_match_class.R'
-    'st_annotation_class.R'
 Suggests: 
+    covr,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

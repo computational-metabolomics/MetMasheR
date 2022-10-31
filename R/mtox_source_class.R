@@ -1,8 +1,11 @@
-#' @include annotation_class.R
-#' @export mtox_annotation
-mtox_annotation = function(input_file,tag = 'MTox',add_cols=list(),...) {
+#' @include import_annotation_class.R
+#' @export mtox_source
+mtox_source = function(
+        input_file,
+        tag = 'MTox',
+        add_cols=list(),...) {
     # new object
-    out = new_struct('mtox_annotation',
+    out = new_struct('mtox_source',
         input_file=input_file,
         tag=tag,
         add_cols=add_cols,
@@ -12,24 +15,19 @@ mtox_annotation = function(input_file,tag = 'MTox',add_cols=list(),...) {
 }
 
 
-.mtox_annotation<-setClass(
-    "mtox_annotation",
-    contains = c('lcms_table'),
-    prototype=list(
-        mz_column = 'mz',
-        rt_column = 'rt',
-        id_column = 'id'
-    )
+.mtox_source<-setClass(
+    "mtox_source",
+    contains = c('annotation_source')
 )
 
 
 #' @export
-setMethod(f = "import_source",
-    signature = c("mtox_annotation"),
-    definition = function(M,...) {
+setMethod(f = "model_apply",
+    signature = c("mtox_source",'lcms_table'),
+    definition = function(M,D) {
         
         # check for zero content
-        check=readLines(obj$input_file)
+        check=readLines(M$input_file)
         if (check[1]=='' | check[1]=="\"\"") {
             # its empty, so create data.frame with no rows
             cols=c(
@@ -45,12 +43,6 @@ setMethod(f = "import_source",
                 'sample',
                 'peakidx',
                 'ms_level',
-                'QC56_MSMS_EL_150_300_lp_mzML',
-                'QC57_MSMS_EL_290_365_lp_mzML',
-                'QC58_MSMS_EL_355_460_lp_mzML',
-                'QC59_MSMS_EL_450_860_lp_mzML',
-                'QC60_MSMS_EL_850_1010_lp_mzML',
-                'QC61_MSMS_EL_1000_2000_lp_mzML',
                 'grp_name',
                 'lpid',
                 'mid',
@@ -73,12 +65,20 @@ setMethod(f = "import_source",
                 'library_entry_name',
                 'inchikey',
                 'library_table_name',
-                'library_compound_name'
+                'library_compound_name',
+                'id'
             )
             df=data.frame(matrix(NA,nrow=0,ncol=length(cols)))
             colnames(df)=cols
-            obj$annotations=df
-            return(obj)
+            
+            D$annotations=df
+            D$mz_column = 'mz'
+            D$rt_column = 'rt'
+            D$id_column = 'id'
+            D$tag=M$tag
+            M$imported=D
+            
+            return(M)
 
         }
         
@@ -103,9 +103,8 @@ setMethod(f = "import_source",
         mtox_output=cbind(mtox_output,S)
         
         # convert to char and add id
-        mtox_output[[obj$id_column]]=as.character(1:nrow(mtox_output))
-        mtox_output$ms_level=as.character(mtox_output$ms_level)
-        
+        mtox_output$id=as.character(1:nrow(mtox_output))
+
         # calc ppm diff
         mtox_output$library_ppm_diff = 1e6 * (mtox_output$query_precursor_mz-mtox_output$library_precursor_mz)/mtox_output$library_precursor_mz
         
@@ -123,8 +122,16 @@ setMethod(f = "import_source",
             }
         }
         
-        obj$annotations=mtox_output
-        return(obj)
+        D$annotations=mtox_output
+        
+        D$mz_column = 'mz'
+        D$rt_column = 'rt'
+        D$id_column = 'id'
+        D$tag=M$tag
+        
+        M$imported=D
+        
+        return(M)
     }
 )
 

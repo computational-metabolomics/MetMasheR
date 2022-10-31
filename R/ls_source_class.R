@@ -1,6 +1,8 @@
 #' @include import_annotation_class.R
 #' @export ls_source
-ls_source = function(input_file,add_cols=list(),...) {
+ls_source = function(
+        input_file,
+    add_cols=list(),...) {
     # new object
     out = new_struct('ls_annotation',
         input_file = input_file,
@@ -79,7 +81,7 @@ setMethod(f = "model_apply",
             out$LipidName=unlist(lapply(N,'[',1))
             
             # add ids
-            out[[M$id_column]] = as.character(1:nrow(out))
+            out$id = as.character(1:nrow(out))
             
             # add extra columns if requested
             if (length(M$add_cols)>0){
@@ -93,7 +95,14 @@ setMethod(f = "model_apply",
             colnames(out)=c('Rej.','LipidIon','LipidGroup','Class','IonFormula','theor_mass','Grade','mz','library_ppm_diff','rt','LipidName',names(M$add_cols))
         }
         
-        M$annotations=out
+        D$annotations=out
+        
+        D$mz_column='mz'
+        D$tag=M$tag
+        D$rt_column='rt'
+        D$id_column='id'
+        
+        M$imported=D
         
         return(M)
     }

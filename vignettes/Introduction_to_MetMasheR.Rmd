@@ -1,13 +1,16 @@
 ---
 title: "Introduction to Metabolite Mashing in R using the MetMasheR package"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Introduction to Metabolite Mashing in R using the MetMasheR package}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    theme: cerulean
+    number_sections: true
+vignette: "%\\VignetteIndexEntry{Introduction to Metabolite Mashing in R using the
+  MetMasheR package} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8}\n"
 ---
 
-# Prerequisits
+# Prerequisites
 
 For this vignette you will need the following R packages:
 
@@ -22,7 +25,7 @@ suppressPackageStartupMessages(library(openxlsx))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(DT))
 
-myDT = function(x,extensions=c('Scroller','Buttons'),options=list(
+myDT = function(x,extensions=c('Scroller'),options=list(
     scrollX = TRUE,
     deferRender = TRUE,
     scrollY = 200,
@@ -30,8 +33,7 @@ myDT = function(x,extensions=c('Scroller','Buttons'),options=list(
     dom = 'Bfrtip',
     searching = FALSE,
     pageLength = 10,
-    fillContainer = FALSE,
-    buttons = c('copy', 'excel')),...){
+    fillContainer = FALSE),...){
 DT::datatable(x,extensions = extensions,options = options,...)
 }
 ```
@@ -89,10 +91,12 @@ The imported annotations are available via the `annotations` slot of the `annota
 A$annotations
 ```
 
+<div height=500>
 ```{r,include=TRUE,echo=FALSE}
 A$annotations$mzcloud_score=as.numeric(A$annotations$mzcloud_score)
 myDT(A$annotations)
 ```
+</div>
 
 An alternative approach is to use the source object as part of a `model_sequence`. Examples of this are shown in the following sections.
 
@@ -270,7 +274,7 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 In this example we import a database from Bioconductor's Annotation Hub, and then search for PubChem Compound identifiers (CID) in the database by matching the Kegg identifiers provided by the annotation source to the Kegg identifiers in the database.
 
@@ -331,7 +335,7 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 
 In the example below the `pubchem_lookup` object is used to search for matches based on the `kegg_id` column provided by the `annotation_table`, and then the compound name (if the KEGG ID is not available), and return corresponding CID for each match. 
@@ -435,7 +439,7 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 
 The new column is named using the `count_column` parameter and contains the number of occurrences of the id for each record in the `id_column`. e.g. if the ids are c(A,A,B) the then counts are c(2,2,1) as there are two records with the identifier A and one record with the identifier B.
@@ -443,7 +447,11 @@ The new column is named using the `count_column` parameter and contains the numb
 In the following example the new `counts_column` is used to filter the annotation table to include annotations where the id database lookup resulted in multiple CID.
 
 ```{r id-counts2}
-M =  import_annotation() + 
+M =  cd_source(
+        input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
+        compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
+        cd_version = '3.3',
+        tag='CD') +
      id_db_lookup(
         annotation_column = 'kegg_id',
         database_column = 'KEGG',
@@ -469,7 +477,7 @@ predicted(M)$annotations
 ```
 
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M)$annotations))
+myDT(predicted(M)$annotations)
 ```
 
 Note that these counts are only valid at the time when the model is applied, i.e. counts are not automatically updated with every step applied. 
@@ -493,13 +501,13 @@ In the example below a data.frame of variable meta data (which minimally consist
 VM = openxlsx::read.xlsx('C:/Users/Gavin/Desktop/HILIC_NEG.xlsx',sheet='variableMetaData',rowNames=TRUE,colNames = TRUE)
 
 # import annotations
-A = cd_annotation(
+A = cd_source(
     input_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL.xlsx',
     compounds_file = 'C:/Users/Gavin/Desktop/HILIC_NEG_IL_comp.xlsx',
     cd_version = '3.3',
     tag = 'CD'
 )
-A = import_annotations(A)
+A = import_source(A)
 
 # apply mz and then rt matching
 M = mzrt_match(
@@ -519,7 +527,7 @@ predicted(M)
 Where there are multiple matches records have been duplicated and the feature id added.
 
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M)$annotations))
+myDT(predicted(M)$annotations)
 ```
 Note that we have specified a ppm window of 5. By default, the matching algorithm applies this window to both the annotation mz (for ppm) and the measured feature m/z, and then searches for overlapping windows. This means the maximum ppm difference between an annotation and a feature is 10. The same approach is used for rt.
 
@@ -543,7 +551,7 @@ predicted(M)
 The number of records is much smaller now, and the maximum difference between the annotations and the matching features is 5ppm, with the window centred on the annotations.
 
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M)$annotations))
+myDT(predicted(M)$annotations)
 ```
 
 # Combining annotations within a source
@@ -563,7 +571,7 @@ for (k in param_ids(obj)) {
 }
 OUT=do.call(rbind,OUT)
 
-DT::datatable(OUT)
+myDT(OUT)
 ```
 In this example we match the features to annotations by mz and rt, and then collapse duplicate records using pipes.
 
@@ -588,7 +596,7 @@ predicted(M)
 ```
 
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M)$annotations))
+myDT(predicted(M)$annotations)
 ```
 
 The annotation table now has unique values in the `mzrt_match_id` column and duplicate entries for other columns have been combined using " || " as a separator.
@@ -630,7 +638,7 @@ M = model_apply(M,A)
 predicted(M)
 ```
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M)$annotations))
+myDT(predicted(M)$annotations)
 ```
 In the next example the metabolite annotation with the largest mzcloud score is chosen as the annotation for a feature.
 
@@ -653,5 +661,6 @@ M = model_apply(M,A)
 predicted(M)
 ```
 ```{r,include=TRUE,echo=FALSE}
-DT::datatable(head(predicted(M)$annotations))
+myDT(predicted(M)$annotations)
 ```
+

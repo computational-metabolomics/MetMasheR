@@ -10,6 +10,7 @@ id_db_lookup(
   id_database,
   include = NULL,
   tag = NULL,
+  not_found = NA,
   ...
 )
 }
@@ -23,6 +24,8 @@ id_db_lookup(
 \item{include}{(character, NULL) The name of the database columns to be added to the annotations. If NULL, all columns are retained. The default is \code{NULL}.}
 
 \item{tag}{(character, NULL) A string appended to the column names from the database. Used to distinguish columns from different databases with identical column names.If tag = NULL then the column names are not changed. The default is \code{NULL}.}
+
+\item{not_found}{(character, numeric, logical, NULL) The returned value when there are no matches. The default is \code{NA}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

@@ -7,6 +7,7 @@ id_db_lookup = function(
     id_database,
     include = NULL,
     tag = NULL,
+    not_found = NA,
     ...) {
     out=struct::new_struct('id_db_lookup',
         annotation_column = annotation_column,
@@ -14,6 +15,7 @@ id_db_lookup = function(
         id_database = id_database,
         include = include,
         tag = tag,
+        not_found = not_found,
         ...)
     return(out)
 }
@@ -29,7 +31,8 @@ id_db_lookup = function(
         id_database = 'entity',
         include = 'entity',
         updated='entity',
-        tag = 'entity'
+        tag = 'entity',
+        not_found = 'entity'
     ),
     
     prototype=list(
@@ -38,7 +41,7 @@ id_db_lookup = function(
         type = 'univariate',
         predicted = 'updated',
         libraries = 'dplyr',
-        .params=c('annotation_column','database_column','id_database','include','tag'),
+        .params=c('annotation_column','database_column','id_database','include','tag','not_found'),
         .outputs=c('updated'),
         annotation_column = entity(
             name = 'Annotions column name',
@@ -79,6 +82,12 @@ id_db_lookup = function(
                 'If tag = NULL then the column names are not changed.'),
             type=c('character','NULL'),
             max_length = 1
+        ),
+        not_found = entity(
+            name = 'Not found',
+            description = 'The returned value when there are no matches.',
+            type = c('character','numeric','logical','NULL'),
+            max_length = 1
         )
     )
 )
@@ -114,6 +123,9 @@ setMethod(f="model_apply",
             # add tags if requested
             if (!is.null(M$tag)) {
                 colnames(found)=paste0(M$tag,'_',colnames(found))
+            }
+            if (nrow(found)==0){
+                found[1,]=M$not_found
             }
             return(found)
         })

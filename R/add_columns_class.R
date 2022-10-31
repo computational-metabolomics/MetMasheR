@@ -2,6 +2,13 @@
 #' @export
 #' @include annotation_class.R
 add_columns = function(new_columns,by,...) {
+    
+    check=by %in% colnames(new_columns)
+    if (!check) {
+        stop('parameter "by" must refer to a column name of the "new_columns",
+            " data.frame')
+    }
+    
     out=struct::new_struct('add_columns',
         new_columns = new_columns,
         by = by,

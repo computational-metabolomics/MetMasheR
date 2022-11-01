@@ -7,7 +7,7 @@
 filter_range(
   column_name,
   upper_limit = Inf,
-  lower_limit = Inf,
+  lower_limit = -Inf,
   equal_to = TRUE,
   ...
 )
@@ -17,7 +17,7 @@ filter_range(
 
 \item{upper_limit}{(numeric, integer, function) The upper limit used for filtering. Can be a value, or a function that computes a value (e.g. mean). The default is \code{Inf}.}
 
-\item{lower_limit}{(numeric, integer, function) The lower limit used for filtering. Can be a value, or a function that computes a value (e.g. mean). The default is \code{Inf}.}
+\item{lower_limit}{(numeric, integer, function) The lower limit used for filtering. Can be a value, or a function that computes a value (e.g. mean). The default is \code{-Inf}.}
 
 \item{equal_to}{(logical) Equal to limits. Allowed values are limited to the following: \itemize{\item{\code{"TRUE"}: Greater/less than or equal to the limits are excluded.}\item{\code{"FALSE"}: Greater/less than the limits are excluded.}} The default is \code{TRUE}.}
 

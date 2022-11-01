@@ -100,16 +100,6 @@ setMethod(f="model_apply",
         
         X = D$annotations
         
-        # add order column
-        X$.orig_order=1:nrow(X)
-        
-        # only include named columns
-        if (is.null(M$include)) {
-            include_cols = colnames(M$id_database)
-        } else {
-            include_cols = unique(c(M$database_column,M$include))
-        }
-        
         # match class to db
         X[[M$annotation_column]]=as(X[[M$annotation_column]],class(M$id_database[[M$database_column]]))
         
@@ -117,15 +107,14 @@ setMethod(f="model_apply",
         OUT = apply(X,1,function(x){
             # search for database rows that match the annotation column
             w = which(M$id_database[[M$database_column]] == x[[M$annotation_column]])
-            found = M$id_database[w,include_cols]
-            # remove duplicates
-            found = found[!duplicated(found),]
-            # add tags if requested
-            if (!is.null(M$tag)) {
-                colnames(found)=paste0(M$tag,'_',colnames(found))
-            }
-            if (nrow(found)==0){
+            
+            if (length(w)==0){
+                # if no hits in db then return no_match
+                found = M$id_database[1,,drop=FALSE]
                 found[1,]=M$not_found
+                found[[M$database_column]]=x[[M$annotation_column]]
+            } else {
+                found = M$id_database[w,,drop=FALSE]
             }
             return(found)
         })
@@ -134,21 +123,31 @@ setMethod(f="model_apply",
         # remove duplicates
         OUT = OUT[!duplicated(OUT),]
        
-        # merge with original table
-        if (!is.null(M$tag)) {
-            db_col=paste0(M$tag,'_',M$database_column)
-        } else {
-            db_col=M$database_column
-        }
-        merged = merge(X,OUT,by.x=M$annotation_column,by.y=db_col,all.x=TRUE,sort=FALSE)
-    
-
+        # match by provided columns
+        by  = M$database_column
+        names(by)=M$annotation_column
         
-        # put into original order
-        merged=merged[order(merged$.orig_order),]
-        rownames(merged)=1:nrow(merged)
-        w=which(colnames(merged)=='.orig_order')
-        merged=merged[,-w]
+        # merge with original table
+        merged = dplyr::left_join(X,OUT,by=by)
+
+        # only include named columns
+        if (is.null(M$include)) {
+            include_cols = colnames(M$id_database)
+        } else {
+            include_cols = unique(M$include)
+        }
+        merged=merged[,unique(c(colnames(X),include_cols))]
+        
+        # add tags
+        if (!is.null(M$tag)) {
+            # prevent tagging the annotation id columns
+            z = which(include_cols == M$annotation_column) 
+            if (length(z)>0) {
+                include_cols=include_cols[-z]
+            }
+            w = which(colnames(merged) %in% include_cols)
+            colnames(merged)[w]=paste0(M$tag,'_',include_cols)
+        }
         
         D$annotations=merged
         

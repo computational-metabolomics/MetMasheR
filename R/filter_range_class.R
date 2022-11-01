@@ -4,9 +4,17 @@
 filter_range = function(
     column_name,
     upper_limit=Inf,
-    lower_limit=Inf,
+    lower_limit=-Inf,
     equal_to=TRUE,
     ...) {
+    
+    if (!is(upper_limit,'function') & !is(lower_limit,'function')) {
+        check = upper_limit>=lower_limit
+        if (!check) {
+            stop("upper_limit must be greater than the lower_limit")
+        }
+    }
+    
     out=struct::new_struct('filter_range',
         column_name=column_name,
         upper_limit=upper_limit,
@@ -113,11 +121,10 @@ setMethod(f="model_apply",
             lower_limit = M$lower_limit
         }
         
-        check = upper_limit>lower_limit
+        check = upper_limit>=lower_limit
         if (!check) {
-            stop("lower_limit must be less than upper_limit")
+            stop("upper_limit must be greater than the lower_limit")
         }
-        
         
         if (M$equal_to) {
             w = which(X[[M$column_name]] <= lower_limit | X[[M$column_name]] >= upper_limit)

@@ -112,7 +112,8 @@ setMethod(f = 'show',
         # print struct generic info
         callNextMethod()
         
-        cat('annotations:   ',nrow(object$annotations),' rows x ', ncol(object$annotations),' columns\n',sep='')
+        cat('annotations:   ',nrow(object$annotations),' rows x ', 
+            ncol(object$annotations),' columns\n',sep='')
         
         head(object$annotations)
 
@@ -125,12 +126,20 @@ rename_matching = function(a,matching_columns) {
     for (k in 1:length(matching_columns)) {
         
         w=which(colnames(a) %in% matching_columns[[k]])
-        if (length(w) >= 1) {
+        
+        if (length(w)>1) {
+            warning('combine_annotations: more than one matching column for ',
+                '"', names(matching_columns)[k], '". Column "', colnames(a)[w[1]],
+                '" will be used.')
+            # rename extra columns so that not two columns with same name
+            colnames(a)[w[2:length(w)]]=paste0('.',colnames(a)[w[2:length(w)]])
+        }
+        
+        if (length(w) > 0) {
             colnames(a)[w[1]] = names(matching_columns)[k]
         }
-        if (length(w)>1) {
-            warning('combine_annotations: more than one matching column. The first one will be used.')
-        }
+
+        # silently ignore no matching columns, as not sources will have all columns
     }
     return(a)
     
@@ -164,28 +173,16 @@ do_combine = function(A,B,matching_columns,keep_cols,tag_ids,source_col) {
     
     
     G=list()
-    if (nrow(a) + nrow(b)>0) {
-        if (nrow(a)>0) {
-            G[[A$tag]]=a
-        }
-        if (nrow(b)>0) {
-            G[[B$tag]]=b
-        }
-    } else {
+    if (nrow(a)>0) {
         G[[A$tag]]=a
+    }
+    if (nrow(b)>0) {
         G[[B$tag]]=b
     }
 
-    
-
-
-    
     g=dplyr::bind_rows(G,.id=source_col)
     
     w=which((colnames(g) %in% colnames(a) & colnames(g) %in% colnames(b)) | colnames(g) %in% c(keep_cols,source_col))
-    if (length(w)<1) {
-        stop('must have some matching columns between annotation sources')
-    }
     g=g[,w]
     
     return(g)
@@ -198,7 +195,7 @@ setMethod(f = "combine_annotations",
         
         # force matching for known columns defined by object
         all_matching = list(
-            id = c(A$id_column,B$id_column),
+            id = c(A$id_column,B$id_column)
         )
         # include the user defined ones
         all_matching = c(all_matching,matching_columns)

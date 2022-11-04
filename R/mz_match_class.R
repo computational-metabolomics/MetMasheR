@@ -14,7 +14,7 @@ mz_match = function(
     }
     
     # check ppm window is named if length == 2 in case user-provided
-    if (!all(names(ppm_window) %in% c('variable_meta','annotations'))) {
+    if (!all(names(ppm_window) %in% c('variable_meta','annotations')) | is.null(names(ppm_window))) {
         stop('If providing two ppm windows then the vector must be named e.g. c("variable_meta" = 5, "annotations"= 2)')
     }
     
@@ -37,7 +37,9 @@ mz_match = function(
         variable_meta='entity',
         mz_column='entity',
         ppm_window='entity',
-        id_column='entity'
+        id_column='entity',
+        .vm_lim='data.frame',
+        .an_lim='data.frame'
     ),
     
     prototype=list(
@@ -113,6 +115,15 @@ setMethod(f="model_apply",
         AN$.mz_min = AN[[D$mz_column]] * (1-M$ppm_window[["annotations"]]*1e-6)
         AN$.mz_max = AN[[D$mz_column]] * (1+M$ppm_window[["annotations"]]*1e-6)
         
+        M@.vm_lim=data.frame(
+            VM_mz_min=VM$.mz_min,
+            VM_mz_max=VM$.mz_max
+        )
+        M@.an_lim=data.frame(
+            AN_mz_min=AN$.mz_min,
+            AN_mz_max=AN$.mz_max
+        )
+        
         # for each annotation, get variable ids whose ppw window overlaps with 
         # the annotation ppm window
         OUT=list()
@@ -130,20 +141,22 @@ setMethod(f="model_apply",
                 found$mz_diff = (found[[M$mz_column]]-x[[D$mz_column]])
                 # ppm difference
                 found$ppm_diff = 1e6 * (found$mz_diff/x[[D$mz_column]])
+                found$ppm_diff2 = 1e6 * (found$mz_diff/found[[M$mz_column]])
                 
                 # create duplicate annotations for each id
                 record_list = rep(list(x),length(w))
                 record_list = do.call(rbind,record_list)
                 record_list$mz_match_id = found$.id
                 record_list$mz_match_diff = found$mz_diff
-                record_list$ppm_match_diff = found$ppm_diff
-
+                record_list$ppm_match_diff_an = found$ppm_diff
+                record_list$ppm_match_diff_vm = found$ppm_diff2
             } else {
                 #return record with NA in id column
                 record_list=x
                 record_list$mz_match_id=NA
                 record_list$mz_match_diff=NA
-                record_list$ppm_match_diff=NA
+                record_list$ppm_match_diff_an=NA
+                record_list$ppm_match_diff_vm=NA
             }
             OUT[[k]]=record_list
         }
@@ -160,6 +173,7 @@ setMethod(f="model_apply",
         return(M)
     }
 )
+
 
 
 

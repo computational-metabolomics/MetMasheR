@@ -1,0 +1,21 @@
+{
+    "input": "TG(16:0_16:1_18:2)",
+    "regno": "6587",
+    "lm_id": "LMGL03010053",
+    "name": "TG(16:0/16:1(9Z)/18:2(9Z,12Z))[iso6]",
+    "sys_name": "1-hexadecanoyl-2-(9Z-hexadecenoyl)-3-(9Z,12Z-octadecadienoyl)-sn-glycerol",
+    "synonyms": "TG(16:0/16:1/18:2)[iso6]; TG(50:3); TG(16:0_16:1_18:2)",
+    "abbrev": "TG 50:3",
+    "abbrev_chains": "TG 16:0_16:1_18:2",
+    "core": "Glycerolipids [GL]",
+    "main_class": "Triradylglycerols [GL03]",
+    "sub_class": "Triacylglycerols [GL0301]",
+    "exactmass": "828.720690",
+    "formula": "C53H96O6",
+    "inchi": "InChI=1S/C53H96O6/c1-4-7-10-13-16-19-22-25-26-29-31-34-37-40-43-46-52(55)58-49-50(59-53(56)47-44-41-38-35-32-28-24-21-18-15-12-9-6-3)48-57-51(54)45-42-39-36-33-30-27-23-20-17-14-11-8-5-2/h16,19,21,24-26,50H,4-15,17-18,20,22-23,27-49H2,1-3H3/b19-16-,24-21-,26-25-/t50-/m1/s1",
+    "inchi_key": "HDFLQJUGWGNORO-BJPYDGQASA-N",
+    "hmdb_id": "HMDB05379",
+    "chebi_id": "89768",
+    "pubchem_cid": "9544021",
+    "smiles": "C(OC(=O)CCCCCCC/C=C\\C/C=C\\CCCCC)[C@]([H])(OC(CCCCCCC/C=C\\CCCCCC)=O)COC(CCCCCCCCCCCCCCC)=O"
+}

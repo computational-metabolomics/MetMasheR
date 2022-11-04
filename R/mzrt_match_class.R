@@ -16,7 +16,7 @@ mzrt_match = function(
     }
     
     # check ppm window is named if length == 2 in case user-provided
-    if (!all(names(ppm_window) %in% c('variable_meta','annotations'))) {
+    if (!all(names(ppm_window) %in% c('variable_meta','annotations')) | is.null(names(ppm_window))) {
         stop('If providing two ppm windows then the vector must be named e.g. c("variable_meta" = 5, "annotations"= 2)')
     }
     
@@ -26,7 +26,7 @@ mzrt_match = function(
     }
     
     # check rt window is named if length == 2 in case user-provided
-    if (!all(names(rt_window) %in% c('variable_meta','annotations'))) {
+    if (!all(names(rt_window) %in% c('variable_meta','annotations')) | is.null(names(rt_window))) {
         stop('If providing two retention time windows then the vector must be named e.g. c("variable_meta" = 5, "annotations"= 2)')
     }
     
@@ -122,9 +122,12 @@ setMethod(f="model_apply",
         # if nothing in table, then return
         if (nrow(D$annotations)==0) {
             df=D$annotations
-            df$ppm_match_diff=numeric(0)
+            df$mz_match_diff=numeric(0)
+            df$ppm_match_diff_an=numeric(0)
+            df$ppm_match_diff_vm=numeric(0)
             df$rt_match_diff=numeric(0)
             df$mzrt_match_id=character(0)
+            df$mzrt_match_score=character(0)
             D$annotations=df
             M$updated=D
             return(M)
@@ -154,7 +157,7 @@ setMethod(f="model_apply",
         D$annotations=D$annotations[,-w]
         
         # add a combined score for mz and rt matching
-        D$annotations$mzrt_match_score=sqrt((D$annotations$ppm_match_diff^2)+(D$annotations$rt_match_diff^2))
+        D$annotations$mzrt_match_score=sqrt((mean(D$annotations$ppm_match_diff_an,D$annotations$ppm_match_diff_vm)^2)+(D$annotations$rt_match_diff^2))
         M$updated=D
         
         return(M)

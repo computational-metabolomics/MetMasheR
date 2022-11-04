@@ -314,7 +314,7 @@ setMethod(f="model_apply",
         p = !!priority
         for (k in 1:length(p)) {
             w=which(cur_data()[[!!match_col]]==p[k])
-            if (length(w)>0) {break}
+            if (length(w)>0) {break} # stop as soon as we get a match
         }
         # if no matches
         if (length(w)==0){
@@ -350,15 +350,6 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' @export
-.count_levels=function(count_col,levels) {
-    fcn=expr(function(){
-        df=cur_data()[[!!count_col]]
-        return(sum(df == !!levels))
-    })
-    return(eval(fcn))
-    
-}
 
 
 

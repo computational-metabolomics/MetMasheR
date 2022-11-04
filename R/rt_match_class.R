@@ -14,8 +14,10 @@ rt_match = function(
     }
     
     # check rt window is named if length == 2 in case user-provided
-    if (!all(names(rt_window) %in% c('variable_meta','annotations'))) {
-        stop('If providing two retention time windows then the vector must be named e.g. c("variable_meta" = 5, "annotations"= 2)')
+    if (!all(names(rt_window) %in% c('variable_meta','annotations')) 
+        | is.null(names(rt_window))) {
+        stop('If providing two retention time windows then the vector must be ',
+             'named e.g. c("variable_meta" = 5, "annotations"= 2)')
     }
 
     out=struct::new_struct('rt_match',

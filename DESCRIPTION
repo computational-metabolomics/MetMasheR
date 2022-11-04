@@ -55,6 +55,7 @@ Collate:
     'rt_match_class.R'
 Suggests: 
     covr,
+    httptest,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

@@ -3,7 +3,7 @@
 #' @include annotation_class.R
 combine_records = function(
         group_by,
-    default_fcn=function(x) {paste0(x,collapse=' || ')},
+    default_fcn=.collapse(separator = ' || '),
     fcns = list(),
     ...) {
     
@@ -44,6 +44,20 @@ combine_records = function(
             'functions are provided for common approaches to merging records.'),
         type = 'univariate',
         predicted = 'updated',
+        libraries='dplyr',
+        citations=list(
+            bibentry(
+                bibtype ='Article',
+                year = 2020,
+                volume = 36,
+                number = "22-23",
+                pages = '5551-5552',
+                author = as.person("Gavin Rhys Lloyd, Andris Jankevics and Ralf J M Weber"),
+                title = paste0('struct: an R/Bioconductor-based framework for ',
+                    'standardized metabolomics data analysis and beyond'),
+                journal = "Bioinformatics"
+            )
+        ),
         .params=c('fcns','group_by','default_fcn'),
         .outputs=c('updated'),
         updated=entity(
@@ -148,14 +162,14 @@ setMethod(f="model_apply",
 )
 
 #' Mode
-#' returns the most common value, excluding NA
-#'
+#' returns the most common value, excluding NA.
+#' first value when sorted (min for numeric)
 #' @export
 .mode= function() {
     fcn=expr(function(x) {
         if ( length(x) <= 2 ) return(x[1])
         if ( anyNA(x) ) x = x[!is.na(x)]
-        ux <- unique(x)
+        ux <- sort(unique(x))
         ux[which.max(tabulate(match(x, ux)))]
     }
     )
@@ -293,9 +307,10 @@ setMethod(f="model_apply",
 #' @export
 .unique = function(separator,na_string='NA',digits=6){
     fcn=expr(function(x){
+        xc=class(cur_data()[[cur_column()]])
         x[is.na(x)]=!!na_string
-        if (is(x,'numeric')) {
-            x=round(x,digits)
+        if (xc=='numeric') {
+            x=round(as.numeric(x),digits)
         }
         x=unique(x)
         paste0(x,collapse=!!separator)})
@@ -351,6 +366,12 @@ setMethod(f="model_apply",
 }
 
 
-
-
+#' @export
+.count = function() {
+    fcn=expr(function(x){
+        y=cur_data()
+        return(nrow(y))
+    })
+    return(eval(fcn))
+}
 

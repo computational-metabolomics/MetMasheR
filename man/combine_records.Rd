@@ -6,9 +6,7 @@
 \usage{
 combine_records(
   group_by,
-  default_fcn = function(x) {
-     paste0(x, collapse = " || ")
- },
+  default_fcn = .collapse(separator = " || "),
   fcns = list(),
   ...
 )
@@ -16,7 +14,7 @@ combine_records(
 \arguments{
 \item{group_by}{(character) The column used as the key for grouping records.}
 
-\item{default_fcn}{(function) The default function to use for summarising columns when combining records and a specific function has not been provided in fcns. The default is \code{function(x) {paste0(x, collapse = " || ")}}.}
+\item{default_fcn}{(function) The default function to use for summarising columns when combining records and a specific function has not been provided in fcns. The default is \code{.collapse(separator = " || ")}.}
 
 \item{fcns}{(list) A named list of functions to use for summarising named columns when combining records. Names should correspond to the columns in the annotation table. The default is \code{list()}.}
 
@@ -30,4 +28,16 @@ A  \code{combine_records} object with the following \code{output} slots:
 }
 \description{
 Combine annotation records (rows) based on a key. All records with the same key will be combined. A number of helper functions are provided for common approaches to merging records.
+}
+\details{
+This object makes use of functionality from the following packages:\itemize{\item{\code{dplyr}}}
+}
+\references{
+Wickham H, François R, Henry L, Müller K (2022).
+\emph{dplyr: A Grammar of Data Manipulation}.
+R package version 1.0.10, \url{https://CRAN.R-project.org/package=dplyr}.
+
+Lloyd GR, Jankevics A, Weber RJM (2020).
+``struct: an R/Bioconductor-based framework for standardized metabolomics data analysis and beyond.''
+\emph{Bioinformatics}, \bold{36}(22-23), 5551-5552.
 }

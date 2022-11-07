@@ -3,11 +3,13 @@
 \name{.mode}
 \alias{.mode}
 \title{Mode
-returns the most common value, excluding NA}
+returns the most common value, excluding NA.
+first value when sorted (min for numeric)}
 \usage{
 .mode()
 }
 \description{
 Mode
-returns the most common value, excluding NA
+returns the most common value, excluding NA.
+first value when sorted (min for numeric)
 }

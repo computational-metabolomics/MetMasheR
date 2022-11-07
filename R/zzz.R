@@ -169,17 +169,4 @@ stringify_params = function(M,P,type='param',val=NULL) {
 
 
 
-check_unique = function(new_col, old_cols, M) {
-    origin=class(M)[1]
-    m = make.unique(c(old_cols,param_value(M,new_col)),sep='_')
-    
-    if (m[length(m)] != new_col) {
-        warning(origin,': "',old_cols,'" was renamed to"',m[length[m]],'" to prevent overwriting existing columns.')
-        param_value(M,new_col)=m[length(m)]
-    }
-    return(M)
-}
-
-
-
 

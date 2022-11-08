@@ -193,7 +193,7 @@ setMethod(f="model_apply",
 #'
 #' @export
 .median = function(){
-    fcn = expr(function(x){median(x,na.rm = TRUE)})
+    fcn = expr(function(x){stats::median(x,na.rm = TRUE)})
     return(eval(fcn))
 }
 

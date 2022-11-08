@@ -59,8 +59,8 @@ setMethod(f = "model_apply",
           signature = c("cd_source",'lcms_table'),
           definition = function(M,D) {
 
-              CD_data <- readWorkbook(xlsxFile=M$input_file, sheet=2)
-              CD_isomers <- readWorkbook(xlsxFile=M$compounds_file, sheet=2)
+              CD_data <- openxlsx::readWorkbook(xlsxFile=M$input_file, sheet=2)
+              CD_isomers <- openxlsx::readWorkbook(xlsxFile=M$compounds_file, sheet=2)
               
               if (M$cd_version==3.3) {
                   # replace all 'Tags' with NA
@@ -128,14 +128,14 @@ setMethod(f = "model_apply",
                   }
                   
                   features_list <- do.call(rbind, features_list)
-                  features_list <- as.data.frame(features_list %>% dplyr::group_by(Ion) %>%
-                                                     dplyr::summarise(Compound      = unique(Compound),
-                                                                      Formula       = unique(Formula),
-                                                                      RT            = mean(RT),
-                                                                      mzcloud_score = mean(mzcloud_score),
-                                                                      Charge        = unique(Charge),
-                                                                      mz            = mean(mz),
-                                                                      area          = max(area),
+                  features_list <- as.data.frame(features_list %>% dplyr::group_by(.data$Ion) %>%
+                                                     dplyr::summarise(Compound      = unique(.data$Compound),
+                                                                      Formula       = unique(.data$Formula),
+                                                                      RT            = mean(.data$RT),
+                                                                      mzcloud_score = mean(.data$mzcloud_score),
+                                                                      Charge        = unique(.data$Charge),
+                                                                      mz            = mean(.data$mz),
+                                                                      area          = max(.data$area),
                                                                       file_count    = n()))
                   
                   # flag most common adduct across input files

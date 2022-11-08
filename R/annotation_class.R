@@ -115,7 +115,7 @@ setMethod(f = 'show',
         cat('annotations:   ',nrow(object$annotations),' rows x ', 
             ncol(object$annotations),' columns\n',sep='')
         
-        head(object$annotations)
+        utils::head(object$annotations)
 
     }
 )

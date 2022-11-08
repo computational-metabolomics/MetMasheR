@@ -1,3 +1,4 @@
+#' @eval get_description('mtox_source')
 #' @include import_annotation_class.R
 #' @export mtox_source
 mtox_source = function(

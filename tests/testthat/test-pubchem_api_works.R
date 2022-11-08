@@ -1,5 +1,5 @@
-with_mock_dir('pubchem_get', {
-    test_that("puchem api works", {
+with_mock_dir('pc1', {
+    test_that("pubchem api works", {
         db =data.frame(
             dbid = c('A','B','C'),
             rt = c(10,100,200),
@@ -31,7 +31,7 @@ with_mock_dir('pubchem_get', {
     })
 })
 
-with_mock_dir('pubchem_get', {
+with_mock_dir('pc2', {
     test_that("puchem api works with properties", {
         db =data.frame(
             dbid = c('A','B','C'),

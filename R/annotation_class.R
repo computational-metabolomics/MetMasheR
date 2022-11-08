@@ -188,7 +188,6 @@ do_combine = function(A,B,matching_columns,keep_cols,tag_ids,source_col) {
     return(g)
 }
 
-#' @export
 setMethod(f = "combine_annotations",
     signature = c("annotation_table","annotation_table"),
     definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_table') {
@@ -213,7 +212,6 @@ setMethod(f = "combine_annotations",
     }
 )
 
-#' @export
 setMethod(f = "combine_annotations",
     signature = c("list","missing"),
     definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_table') {
@@ -235,7 +233,6 @@ setMethod(f = "combine_annotations",
     })
 
 
-#' @export
 setMethod(f = "combine_annotations",
     signature = c("lcms_table","lcms_table"),
     definition = function(A,B,matching_columns=NULL,keep_cols=NULL,tag_ids=FALSE,source_col='annotation_table') {
@@ -266,7 +263,9 @@ setMethod(f = "combine_annotations",
 )
 
 
-
+#' Apply model sequence
+#' 
+#' Applies a model sequence to an annotations table
 #' @export
 setMethod(f = "model_apply",
     signature = c("model_seq","annotation_table"),

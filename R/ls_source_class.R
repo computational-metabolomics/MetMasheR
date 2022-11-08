@@ -1,3 +1,4 @@
+#' @eval get_description('ls_source')
 #' @include import_annotation_class.R
 #' @export ls_source
 ls_source = function(

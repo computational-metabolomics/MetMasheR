@@ -66,7 +66,10 @@ setMethod(f="model_apply",
     }
 )
 
-#' @export
+#' Import annotation source
+#' 
+#' An `annotation_source` is imported and parsed into an `annotation_table` object.
+#' @export import_source
 setMethod(f="import_source",
     signature=c("annotation_source"),
     definition=function(M) {

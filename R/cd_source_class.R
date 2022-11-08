@@ -1,3 +1,4 @@
+#' @eval get_description('cd_source')
 #' @include import_annotation_class.R
 #' @export
 cd_source = function(
@@ -11,8 +12,8 @@ cd_source = function(
     out = new_struct('cd_source',
         input_file = input_file,
         compounds_file = compounds_file,
-        cd_version=cd_version,
-        add_cols=add_cols,
+        cd_version = cd_version,
+        add_cols = add_cols,
         tag=tag,
         ...
     )

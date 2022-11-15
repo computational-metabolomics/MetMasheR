@@ -5,7 +5,7 @@ ls_source = function(
         input_file,
     add_cols=list(),...) {
     # new object
-    out = new_struct('ls_annotation',
+    out = new_struct('ls_source',
         input_file = input_file,
         add_cols=add_cols,
         ...
@@ -16,7 +16,7 @@ ls_source = function(
 
 .ls_source<-setClass(
     "ls_source",
-    contains = c('annotation_source'),
+    contains = c('lcms_source')
 )
 
 #' @export

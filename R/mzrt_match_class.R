@@ -157,7 +157,7 @@ setMethod(f="model_apply",
         D$annotations=D$annotations[,-w]
         
         # add a combined score for mz and rt matching
-        D$annotations$mzrt_match_score=sqrt((mean(D$annotations$ppm_match_diff_an,D$annotations$ppm_match_diff_vm)^2)+(D$annotations$rt_match_diff^2))
+        D$annotations$mzrt_match_score=sqrt((mean(c(D$annotations$ppm_match_diff_an,D$annotations$ppm_match_diff_vm))^2)+(D$annotations$rt_match_diff^2))
         M$updated=D
         
         return(M)

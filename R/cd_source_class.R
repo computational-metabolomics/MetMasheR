@@ -22,7 +22,7 @@ cd_source = function(
 
 .cd_source<-setClass(
     "cd_source",
-    contains = c('annotation_source'),
+    contains = c('lcms_source'),
     slots = c(
         compounds_file = 'entity',
         cd_version = 'enum',
@@ -43,11 +43,6 @@ cd_source = function(
             type='numeric',
             max_length = 1,
             allowed=c(3.1,3.3)
-        ),
-        imported = entity(
-            name = 'Imported annotations',
-            description=paste0('The imported annotations as an annotation_table object'),
-            type='lcms_table'
         ),
         .params=c('compounds_file','cd_version')
     )

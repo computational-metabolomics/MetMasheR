@@ -29,7 +29,7 @@ cd_source(
 \value{
 A  \code{cd_source} object with the following \code{output} slots:
 \tabular{ll}{
-\code{imported} \tab          (lcms_table) The imported annotations as an annotation_table object. \cr
+\code{imported} \tab          (lcms_table) The imported annotations as an lcms_table object. \cr
 }
 }
 \description{

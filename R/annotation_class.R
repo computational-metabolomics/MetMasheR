@@ -76,6 +76,11 @@ lcms_table = function(annotations=data.frame(),tag='',id_column='',mz_column='',
         msg=c(msg,'"rt_column" must be a column name in the "annotations" data.frame\n')
     }
     
+    # if no columns, skip error reporting
+    if (length(colnames(annotations)) == 0) {
+        msg=character(0)
+    }
+    
     if (!length(msg)==0){
         stop(msg)
     }
@@ -181,6 +186,10 @@ do_combine = function(A,B,matching_columns,keep_cols,tag_ids,source_col) {
     }
 
     g=dplyr::bind_rows(G,.id=source_col)
+    
+    if (keep_cols=='.all') {
+        keep_cols = colnames(g)
+    }
     
     w=which((colnames(g) %in% colnames(a) & colnames(g) %in% colnames(b)) | colnames(g) %in% c(keep_cols,source_col))
     g=g[,w]

@@ -81,3 +81,61 @@ setMethod(f="import_source",
     }
 )
 
+
+
+#' @eval get_description('lcms_source')
+#' @export
+#' @include annotation_class.R
+lcms_source = function(input_file,add_cols=list(),tag='',...) {
+    out=struct::new_struct('lcms_source',
+        input_file=input_file,
+        add_cols=add_cols,
+        tag=tag,
+        ...)
+    return(out)
+}
+
+
+.lcms_source<-setClass(
+    "lcms_source",
+    contains = c('annotation_source'),
+    slots = c(
+        imported='entity',
+        input_file='entity',
+        add_cols='entity',
+        tag='entity'),
+    prototype=list(
+        name = 'Import annotation source',
+        description = paste0('Imports an annotation source.'),
+        type = 'import',
+        predicted = 'imported',
+        .params=c('input_file','add_cols','tag'),
+        .outputs=c('imported'),
+        imported = entity(
+            name = 'Imported annotations',
+            description=paste0('The imported annotations as an lcms_table object'),
+            type='lcms_table'
+        ),
+        input_file = entity(
+            name = 'Input file',
+            description = "The file annotations are imported from.",
+            value=character(0),
+            type='character',
+            max_length = 1
+        ),
+        add_cols = entity(
+            name='additonal columns',
+            description=paste0('A (named) list of additional columns to be ',
+                'added to the table and populated with the provided value.'),
+            type='list',
+            max_length=Inf
+        ),
+        tag = entity(
+            name='Source tag',
+            description = paste0('An abbreviation used to identify this source ',
+                'in annotation tables'),
+            type='character',
+            max_length=1
+        )
+    )
+)

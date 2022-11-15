@@ -31,12 +31,14 @@ Imports: dplyr,
     openxlsx,
     httr
 Collate: 
-    'MetMasheR.R'
     'generics.R'
     'zzz.R'
     'annotation_class.R'
-    'add_columns_class.R'
     'import_annotation_class.R'
+    'BEAMSpy_source_class.R'
+    'MetFrag_source_class.R'
+    'MetMasheR.R'
+    'add_columns_class.R'
     'cd_source_class.R'
     'combine_columns_class.R'
     'combine_records_class.R'

@@ -10,6 +10,7 @@ combine_tables(
   keep_cols = NULL,
   tag_ids = FALSE,
   source_col = "annotation_table",
+  exclude_cols = NULL,
   ...
 )
 }
@@ -23,6 +24,8 @@ combine_tables(
 \item{tag_ids}{(logical) Create a column of new identifiers for each annotation by merging the id from each source with the annotation tag. e.g.an annotation with id = "A1" for source tagged "XY" is given a new id "A1_XY" to prevent duplicate IDs from multiple sources. The default is \code{FALSE}.}
 
 \item{source_col}{(character) The column name that will be created to contain  a tag to indicate which source the annotation originated from. The default is \code{"annotation_table"}.}
+
+\item{exclude_cols}{(NULL, character) Colum names to be excluded from the merged annotation table. The default is \code{NULL}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

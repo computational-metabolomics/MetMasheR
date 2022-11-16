@@ -7,6 +7,7 @@ combine_tables = function(
     keep_cols=NULL,
     tag_ids=FALSE,
     source_col='annotation_table',
+    exclude_cols=NULL,
     ...) {
     
     # if source list is an annotation_table, make it a list
@@ -30,6 +31,7 @@ combine_tables = function(
         keep_cols = keep_cols,
         tag_ids = tag_ids,
         source_col = source_col,
+        exclude_cols=exclude_cols,
         ...)
     return(out)
 }
@@ -45,7 +47,8 @@ combine_tables = function(
         keep_cols = 'entity',
         tag_ids = 'entity',
         source_col = 'entity',
-        combined_table='entity'
+        combined_table='entity',
+        exclude_cols = 'entity'
     ),
     
     prototype=list(
@@ -53,7 +56,8 @@ combine_tables = function(
         description = paste0('Annotation tables are joined and matching columns merged.'),
         type = 'univariate',
         predicted = 'combined_table',
-        .params=c('source_list','matching_columns','keep_cols','tag_ids','source_col'),
+        .params=c('source_list','matching_columns','keep_cols','tag_ids',
+                    'source_col','exclude_cols'),
         .outputs=c('combined_table'),
         combined_table=entity(
             name='Combined annotation tables',
@@ -95,6 +99,13 @@ combine_tables = function(
                 ' a tag to indicate which source the annotation originated from.'), 
             type='character',
             value = 'annotation_table'
+        ),
+        exclude_cols = entity(
+            name = 'Exclude columns',
+            description = paste0('Colum names to be excluded from the merged ',
+                'annotation table'), 
+            type=c('NULL','character'),
+            value = NULL
         )
     )
 )
@@ -110,7 +121,8 @@ setMethod(f="model_apply",
                                 matching_columns=M$matching_columns,
                                 keep_cols=M$keep_cols,
                                 tag_ids=M$tag_ids,
-                                source_col=M$source_col)
+                                source_col=M$source_col,
+                                exclude_cols=M$exclude_cols)
         
         return(M)
     }
@@ -127,7 +139,8 @@ setMethod(f="model_apply",
                                 matching_columns=M$matching_columns,
                                 keep_cols=M$keep_cols,
                                 tag_ids=M$tag_ids,
-                                source_col=M$source_col)
+                                source_col=M$source_col,
+                                exclude_cols=M$exclude_cols)
         
         return(M)
     }

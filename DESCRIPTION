@@ -23,7 +23,7 @@ Description: A package to merge, filter sort, organise and otherwise mash
 License: GPL-3
 Encoding: UTF-8
 LazyData: false
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Depends: struct
 Imports: dplyr,
     methods,

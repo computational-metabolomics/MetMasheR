@@ -7,7 +7,12 @@
 #' @importFrom utils URLencode read.csv read.table write.table
 #' @include zzz.R
 #' @include generics.R
-annotation_table = function(annotations=data.frame(),tag='',id_column='',...) {
+annotation_table = function(
+        annotations=data.frame(
+            id=numeric(0)),
+        tag='',
+        id_column='id',
+        ...) {
     
     check=id_column %in% colnames(annotations)
     
@@ -53,7 +58,16 @@ annotation_table = function(annotations=data.frame(),tag='',id_column='',...) {
 
 #' @eval get_description("annotation_table")
 #' @export lcms_table
-lcms_table = function(annotations=data.frame(),tag='',id_column='',mz_column='',rt_column='',...) {
+lcms_table = function(
+        annotations=data.frame(
+            id=numeric(0),
+            mz=numeric(0),
+            rt=numeric(0)),
+        tag='',
+        id_column='id',
+        mz_column='mz',
+        rt_column='rt',
+        ...) {
     
     msg=character(0)
     
@@ -74,11 +88,6 @@ lcms_table = function(annotations=data.frame(),tag='',id_column='',mz_column='',
     
     if (!check){
         msg=c(msg,'"rt_column" must be a column name in the "annotations" data.frame\n')
-    }
-    
-    # if no columns, skip error reporting
-    if (length(colnames(annotations)) == 0) {
-        msg=character(0)
     }
     
     if (!length(msg)==0){
@@ -247,7 +256,7 @@ setMethod(f = "combine_annotations",
         annotation_table = rep(J$tag,nrow(J$annotations))
         for (k in 2:length(A)) {
             B = A[[k]]
-            C = combine_annotations(J,B,matching_columns=matching_columns,
+            C = combine_annotations(A=J,B=B,matching_columns=matching_columns,
                     keep_cols=keep_cols,tag_ids=tag_ids,source_col=source_col,
                     exclude_cols=exclude_cols)
             

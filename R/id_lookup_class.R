@@ -122,33 +122,22 @@ setMethod(f="model_apply",
         
         # remove duplicates
         OUT = OUT[!duplicated(OUT),]
+        
+        # include only requested
+        OUT = OUT[,c(M$database_column,M$include)]
        
+        # add tags
+        if (!is.null(M$tag)) {
+            colnames(OUT) = paste0(M$tag,'_',colnames(OUT))
+        }
+        
         # match by provided columns
         by  = M$database_column
-        names(by)=M$annotation_column
+        names(by) = M$annotation_column
         
         # merge with original table
         merged = dplyr::left_join(X,OUT,by=by)
 
-        # only include named columns
-        if (is.null(M$include)) {
-            include_cols = colnames(M$id_database)
-        } else {
-            include_cols = unique(M$include)
-        }
-        merged=merged[,unique(c(colnames(X),include_cols))]
-        
-        # add tags
-        if (!is.null(M$tag)) {
-            # prevent tagging the annotation id columns
-            z = which(include_cols == M$annotation_column) 
-            if (length(z)>0) {
-                include_cols=include_cols[-z]
-            }
-            w = which(colnames(merged) %in% include_cols)
-            colnames(merged)[w]=paste0(M$tag,'_',include_cols)
-        }
-        
         D$annotations=merged
         
         M$updated=D

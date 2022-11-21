@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.collapse}
 \alias{.collapse}
-\title{Collapse
-for use with combine_records
-returns a function to collapse a vector into a string using the provided separator}
+\title{Collapse multiple annotations}
 \usage{
 .collapse(separator, na_string = "NA")
 }
 \description{
-Collapse
 for use with combine_records
 returns a function to collapse a vector into a string using the provided separator
 }

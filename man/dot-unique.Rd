@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.unique}
 \alias{.unique}
-\title{unique values
-for use with combine_records
-reduces a list to unique values, then collapses using the separator}
+\title{unique annotations}
 \usage{
 .unique(separator, na_string = "NA", digits = 6)
 }
 \description{
-unique values
 for use with combine_records
 reduces a list to unique values, then collapses using the separator
 }

@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.median}
 \alias{.median}
-\title{Median
-for use with collapse_records
-returns a function for calculating the median value, excluding NA}
+\title{report median value for an annotation}
 \usage{
 .median()
 }
 \description{
-Median
 for use with collapse_records
 returns a function for calculating the median value, excluding NA
 }

@@ -2,16 +2,36 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.prioritise}
 \alias{.prioritise}
-\title{prioritise
-#' for use with combine records
-reduces a list by prioritizing values according to the input
-if multiple matches to the priority then collapse using separator}
+\title{Prioritising annotations within a group}
 \usage{
 .prioritise(match_col, priority, separator, no_match = NA, na_string = "NA")
 }
+\arguments{
+\item{match_col}{(character) the column with labels to prioritise}
+
+\item{priority}{(character) a list of labels in priority order}
+
+\item{separator}{(character, NULL) if !NULL this string is used to collapse matches with the same priority}
+
+\item{no_match}{(character, NULL) if !NULL  then annotations not matching any of the priority labels are replaced with this value}
+
+\item{na_string}{(character) NA values are replaced with this string}
+}
+\value{
+a function for use with combine_records
+}
 \description{
-prioritise
-#' for use with combine records
-reduces a list by prioritizing values according to the input
-if multiple matches to the priority then collapse using separator
+**This function is for use with combine records**
+This function reduces a subset of annotations by prioritising values 
+according to the input. If there are multiple matches with the same priority
+then collapse using separator.
+}
+\examples{
+M = combine_records(
+        group_by = 'InChiKey',
+        default_fcn = .prioritise(
+                          match_col = 'source',
+                          priority = c('CD','LS'),
+                          separator = '  || ')
+    )
 }

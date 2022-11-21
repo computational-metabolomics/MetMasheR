@@ -161,9 +161,11 @@ setMethod(f="model_apply",
     }
 )
 
-#' Mode
+#' report modal value for an annotation
+#' 
 #' returns the most common value, excluding NA.
 #' first value when sorted (min for numeric)
+#' 
 #' @export
 .mode= function() {
     fcn=expr(function(x) {
@@ -177,7 +179,8 @@ setMethod(f="model_apply",
 }
 
 
-#' Mean
+#' report mean value for an annotation
+#' 
 #' for use with collapse_records
 #' returns a function for calculating the mean value, excluding NA
 #'
@@ -187,7 +190,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' Median
+#' report median value for an annotation
+#' 
 #' for use with collapse_records
 #' returns a function for calculating the median value, excluding NA
 #'
@@ -197,7 +201,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' Collapse
+#' Collapse multiple annotations
+#' 
 #' for use with combine_records
 #' returns a function to collapse a vector into a string using the provided separator 
 #'
@@ -209,7 +214,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' select max
+#' select annotations with a maximum
+#' 
 #' for use with combine_records
 #' returns a function to select the value of a list based on the index of the maximum in a second list
 #'
@@ -235,7 +241,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' select min
+#' select annotation with a minimum
+#' 
 #' for use with combine_records
 #' returns the value of a list based on the index of the maximum in a second list
 #'
@@ -261,7 +268,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' select match
+#' select matching annotations
+#' 
 #' for use with combine_records
 #' returns the value(s) of a list based on the index of identical matches in a second list
 #'
@@ -280,7 +288,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' select match
+#' select exactly matching annotations
+#' 
 #' for use with combine_records
 #' returns the value(s) of a list based on the index of identical matches
 #'
@@ -300,7 +309,8 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' unique values
+#' unique annotations
+#' 
 #' for use with combine_records
 #' reduces a list to unique values, then collapses using the separator
 #'
@@ -317,11 +327,28 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
-#' prioritise
-#' #' for use with combine records
-#' reduces a list by prioritizing values according to the input
-#' if multiple matches to the priority then collapse using separator
+#' Prioritising annotations within a group
 #' 
+#' **This function is for use with combine records**
+#' This function reduces a subset of annotations by prioritising values 
+#' according to the input. If there are multiple matches with the same priority
+#' then collapse using separator.
+#' 
+#' @param match_col (character) the column with labels to prioritise
+#' @param priority (character) a list of labels in priority order
+#' @param separator (character, NULL) if !NULL this string is used to collapse matches with the same priority
+#' @param no_match (character, NULL) if !NULL  then annotations not matching any of the priority labels are replaced with this value
+#' @param na_string (character) NA values are replaced with this string  
+#' @return a function for use with combine_records
+#' 
+#' @examples 
+#' M = combine_records(
+#'         group_by = 'InChiKey',
+#'         default_fcn = .prioritise(
+#'                           match_col = 'source',
+#'                           priority = c('CD','LS'),
+#'                           separator = '  || ')
+#'     )
 #' @export
 .prioritise = function(match_col,priority,separator,no_match=NA,na_string='NA'){
     fcn=expr(function(x){
@@ -357,6 +384,12 @@ setMethod(f="model_apply",
     return(eval(fcn))
 }
 
+#' do nothing to the annotations
+#' 
+#' for use with combine records
+#' A pass-through function to allow some annotation table columns to remain
+#' unchanged.
+#' 
 #' @export
 .nothing = function() {
     fcn=expr(function(x){
@@ -366,6 +399,12 @@ setMethod(f="model_apply",
 }
 
 
+#' number of annotations
+#' 
+#' for use with combine records
+#' Adds a new column indicating the number of annotations that match the given
+#' grouping variable.
+#' 
 #' @export
 .count = function() {
     fcn=expr(function(x){

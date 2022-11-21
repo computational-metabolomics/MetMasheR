@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.select_exact}
 \alias{.select_exact}
-\title{select match
-for use with combine_records
-returns the value(s) of a list based on the index of identical matches}
+\title{select exactly matching annotations}
 \usage{
 .select_exact(match_col, match, separator, na_string = "NA")
 }
 \description{
-select match
 for use with combine_records
 returns the value(s) of a list based on the index of identical matches
 }

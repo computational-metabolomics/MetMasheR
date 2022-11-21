@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.mean}
 \alias{.mean}
-\title{Mean
-for use with collapse_records
-returns a function for calculating the mean value, excluding NA}
+\title{report mean value for an annotation}
 \usage{
 .mean()
 }
 \description{
-Mean
 for use with collapse_records
 returns a function for calculating the mean value, excluding NA
 }

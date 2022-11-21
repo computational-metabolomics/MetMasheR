@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.select_match}
 \alias{.select_match}
-\title{select match
-for use with combine_records
-returns the value(s) of a list based on the index of identical matches in a second list}
+\title{select matching annotations}
 \usage{
 .select_match(match_col, search_col, separator, na_string = "NA")
 }
 \description{
-select match
 for use with combine_records
 returns the value(s) of a list based on the index of identical matches in a second list
 }

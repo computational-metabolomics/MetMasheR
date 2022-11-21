@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.select_min}
 \alias{.select_min}
-\title{select min
-for use with combine_records
-returns the value of a list based on the index of the maximum in a second list}
+\title{select annotation with a minimum}
 \usage{
 .select_min(min_col, use_abs = FALSE)
 }
 \description{
-select min
 for use with combine_records
 returns the value of a list based on the index of the maximum in a second list
 }

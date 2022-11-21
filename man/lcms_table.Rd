@@ -5,20 +5,20 @@
 \title{An annotation source}
 \usage{
 lcms_table(
-  annotations = data.frame(),
+  annotations = data.frame(id = numeric(0), mz = numeric(0), rt = numeric(0)),
   tag = "",
-  id_column = "",
-  mz_column = "",
-  rt_column = "",
+  id_column = "id",
+  mz_column = "mz",
+  rt_column = "rt",
   ...
 )
 }
 \arguments{
-\item{annotations}{(data.frame) Data frame of imported annotations. The default is \code{data.frame()}.}
+\item{annotations}{(data.frame) Data frame of imported annotations. The default is \code{data.frame(id = numeric(0))}.}
 
 \item{tag}{(character) A (short) character string that is used to represent this table e.g. in column names, or source columns. The default is \code{""}.}
 
-\item{id_column}{(character)  The default is \code{""}.}
+\item{id_column}{(character)  The default is \code{"id"}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

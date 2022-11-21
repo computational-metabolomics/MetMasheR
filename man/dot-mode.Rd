@@ -2,14 +2,11 @@
 % Please edit documentation in R/combine_records_class.R
 \name{.mode}
 \alias{.mode}
-\title{Mode
-returns the most common value, excluding NA.
-first value when sorted (min for numeric)}
+\title{report modal value for an annotation}
 \usage{
 .mode()
 }
 \description{
-Mode
 returns the most common value, excluding NA.
 first value when sorted (min for numeric)
 }

@@ -53,6 +53,7 @@ Collate:
     'mtox_source_class.R'
     'mz_match_class.R'
     'mzrt_match_class.R'
+    'normalise_lipids_class.R'
     'pubchem_lookup_class.R'
     'rt_match_class.R'
 Suggests: 

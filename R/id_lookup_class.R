@@ -129,10 +129,13 @@ setMethod(f="model_apply",
         # add tags
         if (!is.null(M$tag)) {
             colnames(OUT) = paste0(M$tag,'_',colnames(OUT))
+            db_column = paste0(M$tag,'_',M$database_column)
+        } else {
+            db_column = M$database_column
         }
         
         # match by provided columns
-        by  = M$database_column
+        by  = db_column
         names(by) = M$annotation_column
         
         # merge with original table

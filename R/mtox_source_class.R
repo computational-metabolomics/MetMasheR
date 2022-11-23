@@ -83,9 +83,8 @@ setMethod(f = "model_apply",
 
         }
         
-        mtox_output <- read.csv(file=obj$input_file, sep=",",row.names=1)
-        obj$annotations=mtox_output
-        
+        mtox_output <- read.csv(file=M$input_file, sep=",",row.names=1)
+
         # split library ascension
         S=lapply(mtox_output$library_accession,function(x) {
             s=strsplit(x=x,split = '|',fixed = TRUE)[[1]]
@@ -117,9 +116,9 @@ setMethod(f = "model_apply",
         mtox_output$library_accession.ion = ions
         
         # add extra columns if requested
-        if (length(obj$add_cols)>0){
-            for (g in 1:length(obj$add_cols)) {
-                mtox_output[[names(obj$add_cols)[g]]]=obj$add_cols[[g]]
+        if (length(M$add_cols)>0){
+            for (g in 1:length(M$add_cols)) {
+                mtox_output[[names(M$add_cols)[g]]]=M$add_cols[[g]]
             }
         }
         
@@ -128,7 +127,7 @@ setMethod(f = "model_apply",
         D$mz_column = 'mz'
         D$rt_column = 'rt'
         D$id_column = 'id'
-        D$tag=M$tag
+        D$tag = M$tag
         
         M$imported=D
         

@@ -10,6 +10,7 @@ pubchem_lookup(
   search_by = "name",
   return_value = "cids",
   property = "InChIKey",
+  cache_path = NULL,
   ...
 )
 }
@@ -23,6 +24,8 @@ pubchem_lookup(
 \item{return_value}{(character) The values to return if a match is found. The default is \code{"cids"}.}
 
 \item{property}{(character) Property value to return if a match is found, and return_value = "property". The default is \code{"InChIKey"}.}
+
+\item{cache_path}{(NULL, character) Path and filename of previously cached results. If NULL, then a single-use cache is generated and not written to disk. The default is \code{NULL}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

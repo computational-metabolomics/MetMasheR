@@ -120,12 +120,12 @@ setMethod(f="model_apply",
         })
         OUT = do.call(rbind,OUT)
         
+        # include only requested
+        OUT = OUT[,c(M$database_column,M$include)]
+        
         # remove duplicates
         OUT = OUT[!duplicated(OUT),]
         
-        # include only requested
-        OUT = OUT[,c(M$database_column,M$include)]
-       
         # add tags
         if (!is.null(M$tag)) {
             colnames(OUT) = paste0(M$tag,'_',colnames(OUT))

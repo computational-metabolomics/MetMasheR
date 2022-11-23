@@ -7,6 +7,7 @@ pubchem_lookup = function(
     search_by = 'name',
     return_value = 'cids',
     property = 'InChIKey',
+    cache_path = NULL,
     ...) {
     
     allowed=c('MolecularFormula','MolecularWeight','CanonicalSMILES',
@@ -27,6 +28,7 @@ pubchem_lookup = function(
         search_by=search_by,
         return_value=return_value,
         property=property,
+        cache_path=cache_path,
         ...)
     
     return(out)
@@ -43,7 +45,8 @@ pubchem_lookup = function(
         updated='entity',
         search_by='enum',
         return_value='enum',
-        property='entity'
+        property='entity',
+        cache_path = 'entity'
     ),
     
     prototype=list(
@@ -51,7 +54,7 @@ pubchem_lookup = function(
         description = paste0('Uses the PubChem API to search for CID based on the input annotation column.'),
         type = 'univariate',
         predicted = 'updated',
-        .params=c('annotation_column','out_column','search_by','return_value','property'),
+        .params=c('annotation_column','out_column','search_by','return_value','property','cache_path'),
         .outputs=c('updated'),
         annotation_column = entity(
             name = 'Annotation column name',
@@ -89,6 +92,15 @@ pubchem_lookup = function(
             description = 'Property value to return if a match is found, and return_value = "property"',
             value='InChI',
             max_length=Inf
+        ),
+        cache_path = entity(
+            name='Path to cache',
+            description = paste0('path and filename of previously cached ',
+                'results. If NULL, then a single-use cache is generated and ',
+                'not written to disk.'),
+            type=c('NULL','character'),
+            value=NULL,
+            max_length=1
         )
     )
 )
@@ -101,7 +113,18 @@ setMethod(f="model_apply",
         X = D$annotations
         
         # use a cache to stop multiple requests for the same search term
-        pubchem_cache=list()
+        if (!is.null(M$cache_path)) {
+            if (file.exists(M$cache_path)) {
+                # import if exists
+                pubchem_cache=readRDS(M$cache_path)
+            } else {
+                # otherwise create new and save later
+                pubchem_cache = list()
+            }
+        } else {
+            # for this call only
+            pubchem_cache=list()
+        }
         
         # get ready
         httr::set_config(httr::config(http_version = 2))
@@ -154,6 +177,11 @@ setMethod(f="model_apply",
         D$annotations=X
         
         M$updated=D
+        
+        # update cache on disk
+        if (!is.null(M$cache_path)) {
+            saveRDS(pubchem_cache,M$cache_path)
+        }
         
         return(M)
     }

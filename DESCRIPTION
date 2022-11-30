@@ -36,6 +36,7 @@ Collate:
     'annotation_class.R'
     'import_annotation_class.R'
     'BEAMSpy_source_class.R'
+    'MTox_RT_class.R'
     'MetFrag_source_class.R'
     'MetMasheR.R'
     'add_columns_class.R'

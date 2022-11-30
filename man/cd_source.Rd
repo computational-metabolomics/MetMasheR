@@ -8,7 +8,7 @@ cd_source(
   input_file,
   compounds_file,
   tag = "CD",
-  cd_version = 3.1,
+  cd_version = "3.1",
   add_cols = list(),
   ...
 )
@@ -20,7 +20,7 @@ cd_source(
 
 \item{tag}{(character) An abbreviation used to identify this source in annotation tables. The default is \code{"CD"}.}
 
-\item{cd_version}{(numeric) The version of Compound Discoverer used to generate the input files. The default is \code{3.1}.}
+\item{cd_version}{(character) The version of Compound Discoverer used to generate the input files. The default is \code{"3.1"}.}
 
 \item{add_cols}{(list) A (named) list of additional columns to be added to the table and populated with the provided value. The default is \code{list()}.}
 

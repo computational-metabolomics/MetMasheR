@@ -5,7 +5,7 @@ cd_source = function(
         input_file, 
     compounds_file,
     tag = 'CD',
-    cd_version = 3.1,
+    cd_version = '3.1',
     add_cols=list(),
     ...) {
     # new object
@@ -39,10 +39,10 @@ cd_source = function(
         cd_version = enum(
             name = 'Version',
             description = "The version of Compound Discoverer used to generate the input files.",
-            value=3.1,
-            type='numeric',
+            value='3.1',
+            type='character',
             max_length = 1,
-            allowed=c(3.1,3.3)
+            allowed=c('3.1','3.3')
         ),
         .params=c('compounds_file','cd_version')
     )
@@ -57,7 +57,7 @@ setMethod(f = "model_apply",
         CD_data <- openxlsx::readWorkbook(xlsxFile=M$input_file, sheet=2)
         CD_isomers <- openxlsx::readWorkbook(xlsxFile=M$compounds_file, sheet=2)
         
-        if (M$cd_version==3.3) {
+        if (M$cd_version=='3.3') {
             # replace all 'Tags' with NA
             CD_data[CD_data=='Tags']=NA
             CD_isomers[CD_isomers=='Tags']=NA
@@ -179,7 +179,7 @@ setMethod(f = "model_apply",
             score_col=which(sub_colnames=='Match')
             kegg_col=which(sub_colnames=='KEGG ID')
             
-            if (as.numeric(M$cd_version)>3.1) {
+            if (M$cd_version=='3.3') {
                 ppm_diff=which(sub_colnames=='DeltaMass [ppm]')
                 cpd_match=which(sub_colnames=='Compound Match')
             }
@@ -189,14 +189,18 @@ setMethod(f = "model_apply",
             #cpmd_kegg_id <- paste (sub_df[[kegg_col]], collapse=" || ")
             
             
-            
+            if (M$cd_version=='3.1') {
             cd_isomers_table[[cmpd]] <- data.frame(
                 Compound=sub_df[[name_col]], 
                 mzcloud_score=sub_df[[score_col]],
                 kegg_id = sub_df[[kegg_col]])
-            if (as.numeric(M$cd_version)>3.3) {
-                cd_isomers_table$ppm_diff=sub_df[[ppm_diff]]
-                cd_isomers_table$compound_match=sub_df[[cpd_match]]
+            } else {
+            cd_isomers_table[[cmpd]] <- data.frame(
+                Compound=sub_df[[name_col]], 
+                mzcloud_score=sub_df[[score_col]],
+                kegg_id = sub_df[[kegg_col]],
+                ppm_diff=sub_df[[ppm_diff]],
+                compound_match=sub_df[[cpd_match]])
             }
         }
         

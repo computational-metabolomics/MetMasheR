@@ -4,9 +4,12 @@
 \alias{.mode}
 \title{report modal value for an annotation}
 \usage{
-.mode()
+.mode(ties = FALSE, ignore_na = TRUE)
 }
 \description{
-returns the most common value, excluding NA.
-first value when sorted (min for numeric)
+Returns the most common value, excluding NA.
+If ties == TRUE then all tied values are returned, else the first value in
+a sorted unique list is return (equal to min if numeric)
+If ignore_na == FALSE then NA are included when searching for the modal value
+and placed last if ties = FALSE (values are returned preferentially over NA)
 }

@@ -163,16 +163,28 @@ setMethod(f="model_apply",
 
 #' report modal value for an annotation
 #' 
-#' returns the most common value, excluding NA.
-#' first value when sorted (min for numeric)
+#' Returns the most common value, excluding NA.
+#' If ties == TRUE then all tied values are returned, else the first value in
+#' a sorted unique list is return (equal to min if numeric)
+#' If ignore_na == FALSE then NA are included when searching for the modal value
+#' and placed last if ties = FALSE (values are returned preferentially over NA)
 #' 
 #' @export
-.mode= function() {
+.mode= function(ties=FALSE,ignore_na=TRUE) {
     fcn=expr(function(x) {
-        if ( length(x) <= 2 ) return(x[1])
-        if ( anyNA(x) ) x = x[!is.na(x)]
-        ux <- sort(unique(x))
-        ux[which.max(tabulate(match(x, ux)))]
+        if (length(x) <= 2) return(x[1])
+        if (anyNA(x) & !!ignore_na) x = x[!is.na(x)]
+        ux <- sort(unique(x),na.last = TRUE)
+        
+        if (!(!!ties)) {
+            out = ux[which.max(tabulate(match(x, ux)))]
+        } else {
+            t = tabulate(match(x, ux))
+            hi = max(t)
+            w = which(t==hi)
+            out=ux[w]
+        }
+        return(out)
     }
     )
     return(eval(fcn))

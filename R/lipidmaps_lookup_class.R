@@ -8,6 +8,12 @@ lipidmaps_lookup = function(
         context,
         context_item,
         ...) {
+    
+    check = length(output_columns) == length(return_columns)
+    if (!check) {
+        stop('length(M$output_columns != length(M$return_columns: An output_column must be specified for each return_column.')
+    }
+    
     out=struct::new_struct('lipidmaps_lookup',
         search_column=search_column,
         output_columns=output_columns,
@@ -161,7 +167,7 @@ setMethod(f="model_apply",
             }
             
             # add ids
-            J$.rowid=k
+            J$.rowid=as.character(k)
             
             # same order of columns
             J=J[,c(expected[[M$context]],'.rowid')]
@@ -178,7 +184,7 @@ setMethod(f="model_apply",
         colnames(RESULT)=c(M$output_columns,'.rowid')
         
         # bind to annotations
-        D$annotations$.rowid=1:nrow(D$annotations)
+        D$annotations$.rowid=as.character(1:nrow(D$annotations))
         D$annotations=dplyr::left_join(D$annotations,RESULT,".rowid")
         
         # remove extra column

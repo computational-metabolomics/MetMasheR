@@ -94,6 +94,7 @@ setMethod(f = "model_apply",
         } else { # empty data.frame
             out= data.frame(matrix(nrow=0,ncol=(11+length(M$add_cols))))
             colnames(out)=c('Rej.','LipidIon','LipidGroup','Class','IonFormula','theor_mass','Grade','mz','library_ppm_diff','rt','LipidName',names(M$add_cols))
+            out$id=as.character(out$id)
         }
         
         D$annotations=out

@@ -98,6 +98,9 @@ setMethod(f="model_apply",
     signature=c("id_db_lookup","annotation_table"),
     definition=function(M,D) {
         
+        if (is.null(M$include)) {
+            M$include=colnames(M$id_database)
+        }
         X = D$annotations
         
         # match class to db
@@ -121,10 +124,10 @@ setMethod(f="model_apply",
         OUT = do.call(rbind,OUT)
         
         # include only requested
-        OUT = OUT[,c(M$database_column,M$include)]
+        OUT = OUT[,unique(c(M$database_column,M$include)),drop=FALSE]
         
         # remove duplicates
-        OUT = OUT[!duplicated(OUT),]
+        OUT = unique(OUT)
         
         # add tags
         if (!is.null(M$tag)) {

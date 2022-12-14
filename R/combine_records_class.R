@@ -363,11 +363,15 @@ setMethod(f="model_apply",
 #'     )
 #' @export
 .prioritise = function(match_col,priority,separator,no_match=NA,na_string='NA'){
+    if (!is.list(priority)) {
+        # convert to list if not formatted as one
+        priority=as.list(priority)
+    }
     fcn=expr(function(x){
         w = NULL
         p = !!priority
         for (k in 1:length(p)) {
-            w=which(cur_data()[[!!match_col]]==p[k])
+            w=which(cur_data()[[!!match_col]] %in% p[[k]])
             if (length(w)>0) {break} # stop as soon as we get a match
         }
         # if no matches

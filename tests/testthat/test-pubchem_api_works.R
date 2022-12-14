@@ -54,6 +54,7 @@ with_mock_dir('pc2', {
             search_by = 'name',
             return_value = 'property',
             property = c('CID','InChIKey')
+            #cache_path = '//its-rds/rdsprojects/w/weberrj-pcbci/pubchem_cache/pubchem_cache.RDS'
         )
         
         M = model_apply(M,AN)

@@ -142,8 +142,10 @@ setMethod(f="model_apply",
                     next
                 }
                 
+                # generate url
+                url = .query_url(x = x[[j]],search_by=M$search_by,return_value=M$return_value,property=M$property) 
                 # check the cache
-                w = which(names(pubchem_cache) == x[[j]])
+                w = which(names(pubchem_cache) == url)
                 # if in the cache, use the previous results
                 if (length(w)>0) {
                     cid = pubchem_cache[[w]]
@@ -156,7 +158,7 @@ setMethod(f="model_apply",
                 }
                 
                 # update cache
-                pubchem_cache[[x[[j]]]]=cid
+                pubchem_cache[[url]]=cid
                 
                 # if we got a cid, next annotation, otherwise try next id
                 if (!all(is.na(cid))) {
@@ -188,8 +190,7 @@ setMethod(f="model_apply",
 )
 
 
-.query_pubchem = function(x,search_by,return_value,property){
-    
+.query_url = function(x,search_by,return_value,property){
     # remove CID from url
     property2=property
     if ('CID' %in% property){
@@ -206,6 +207,15 @@ setMethod(f="model_apply",
     } else {
         url=paste0('https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/',URLencode(search_by),'/',URLencode(x),'/',URLencode(return_value),'/JSON')
     }
+    return(url)
+}
+
+.query_pubchem = function(x,search_by,return_value,property){
+    
+    property2=property
+
+    # get the url
+    url = .query_url(x,search_by,return_value,property)
 
     # try 3 times in case of time out
     failed=TRUE # flag to detect api failure

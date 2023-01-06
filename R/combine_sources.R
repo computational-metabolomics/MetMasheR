@@ -8,6 +8,7 @@ combine_tables = function(
     tag_ids=FALSE,
     source_col='annotation_table',
     exclude_cols=NULL,
+    tag='combined',
     ...) {
     
     # if source list is an annotation_table, make it a list
@@ -32,6 +33,7 @@ combine_tables = function(
         tag_ids = tag_ids,
         source_col = source_col,
         exclude_cols=exclude_cols,
+        tag=tag,
         ...)
     return(out)
 }
@@ -48,7 +50,8 @@ combine_tables = function(
         tag_ids = 'entity',
         source_col = 'entity',
         combined_table='entity',
-        exclude_cols = 'entity'
+        exclude_cols = 'entity',
+        tag='entity'
     ),
     
     prototype=list(
@@ -57,7 +60,7 @@ combine_tables = function(
         type = 'univariate',
         predicted = 'combined_table',
         .params=c('source_list','matching_columns','keep_cols','tag_ids',
-                    'source_col','exclude_cols'),
+                    'source_col','exclude_cols','tag'),
         .outputs=c('combined_table'),
         combined_table=entity(
             name='Combined annotation tables',
@@ -102,10 +105,16 @@ combine_tables = function(
         ),
         exclude_cols = entity(
             name = 'Exclude columns',
-            description = paste0('Colum names to be excluded from the merged ',
+            description = paste0('Column names to be excluded from the merged ',
                 'annotation table'), 
             type=c('NULL','character'),
             value = NULL
+        ),
+        tag = entity(
+            name = 'New tag',
+            description = paste0('The tag given to the newly combined table.'), 
+            type=c('character'),
+            value = 'combined'
         )
     )
 )
@@ -123,6 +132,7 @@ setMethod(f="model_apply",
                                 tag_ids=M$tag_ids,
                                 source_col=M$source_col,
                                 exclude_cols=M$exclude_cols)
+        M$combined_table$tag=M$tag
         
         return(M)
     }
@@ -141,7 +151,7 @@ setMethod(f="model_apply",
                                 tag_ids=M$tag_ids,
                                 source_col=M$source_col,
                                 exclude_cols=M$exclude_cols)
-        
+        M$combined_table$tag=M$tag
         return(M)
     }
 )

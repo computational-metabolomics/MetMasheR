@@ -11,6 +11,7 @@ combine_tables(
   tag_ids = FALSE,
   source_col = "annotation_table",
   exclude_cols = NULL,
+  tag = "combined",
   ...
 )
 }
@@ -25,7 +26,9 @@ combine_tables(
 
 \item{source_col}{(character) The column name that will be created to contain  a tag to indicate which source the annotation originated from. The default is \code{"annotation_table"}.}
 
-\item{exclude_cols}{(NULL, character) Colum names to be excluded from the merged annotation table. The default is \code{NULL}.}
+\item{exclude_cols}{(NULL, character) Column names to be excluded from the merged annotation table. The default is \code{NULL}.}
+
+\item{tag}{(character) The tag given to the newly combined table. The default is \code{"combined"}.}
 
 \item{...}{Additional slots and values passed to \code{struct_class}.}
 }

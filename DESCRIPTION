@@ -49,6 +49,7 @@ Collate:
     'filter_range_class.R'
     'id_count_class.R'
     'id_lookup_class.R'
+    'kegg_lookup_class.R'
     'lipidmaps_lookup_class.R'
     'ls_source_class.R'
     'mtox_source_class.R'

@@ -217,6 +217,11 @@ setMethod(f = "model_apply",
             record_list$mzcloud_score = cd_isomers_table[[cmpd]]$mzcloud_score
             record_list$kegg_id = cd_isomers_table[[cmpd]]$kegg_id
             record_list$compound_match = cd_isomers_table[[cmpd]]$compound_match
+            
+            if (M$cd_version=='3.3') {
+                record_list$library_ppm_diff = cd_isomers_table[[cmpd]]$ppm_diff
+            }
+            
             record_list$compound_no = cmpd
             cd_compounds_table[[cmpd]]=record_list
         }

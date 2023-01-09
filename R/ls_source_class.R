@@ -60,6 +60,9 @@ setMethod(f = "model_apply",
                 rt = lipid_search_data[lipid, measured_rt_columns] * 60
                 rt = rt[grade_col]
                 
+                lo=min(unlist(grade[grade_col]),na.rm = TRUE) # "best" grade
+                w = which(grade[grade_col]==lo)[1]
+                
                 out[[lipid]] =
                     data.frame(
                         Rej. = lipid_search_data$Rej.[lipid],
@@ -67,11 +70,11 @@ setMethod(f = "model_apply",
                         LipidGroup = lipid_search_data$LipidGroup[lipid],
                         Class = lipid_search_data$Class[lipid], 
                         IonFormula = lipid_search_data$IonFormula[lipid],
-                        theor_mass = mz[[1]],
-                        Grade = grade[grade_col][[1]],
-                        mz = mz_meas[[1]],
-                        library_ppm_diff = ppm_diff[[1]],
-                        rt = rt[[1]]
+                        theor_mass = mz[[w]],
+                        Grade = grade[grade_col][[w]],
+                        mz = mz_meas[[w]],
+                        library_ppm_diff = ppm_diff[[w]],
+                        rt = rt[[w]]
                     )
             }
             
